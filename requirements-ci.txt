@@ -1,0 +1,7 @@
+# Slim install for CI and local unit tests: the scaffold (and Wave-2
+# recorded-fixture tests) must run without torch/earth2studio or network.
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pytest>=8
+httpx>=0.27
+ruff>=0.5
