@@ -9,3 +9,8 @@
 earth2studio>=0.14
 fastapi>=0.111
 uvicorn[standard]>=0.30
+numpy>=1.26
+# GRIB decode for the custom MRMS QPE adapter (earth2studio's MRMS class is
+# reflectivity-only). eccodes wheels bundle the binary library.
+cfgrib>=0.9
+eccodes>=2.37

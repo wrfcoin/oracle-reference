@@ -5,6 +5,7 @@ for the WRFCoin oracle (core4#724). Reference data only — the residual→tier
 mapping is consensus-adjacent and lives in core4 shared-protocol, never here.
 """
 
+import logging
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 
@@ -17,10 +18,31 @@ from app.sources import registry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    import asyncio  # noqa: PLC0415
+
+    from app.cache import CacheJanitor  # noqa: PLC0415
     from app.sources.factory import build_sources  # noqa: PLC0415
 
     registry.attach(build_sources())
+
+    async def janitor_loop() -> None:
+        janitor = CacheJanitor()
+        while True:
+            stats = await asyncio.to_thread(janitor.run_once)
+            if stats.files_deleted:
+                logging.getLogger("oracle-reference").info(
+                    "cache janitor: deleted %d files (%.2f -> %.2f GB)",
+                    stats.files_deleted,
+                    stats.bytes_before / 1e9,
+                    stats.bytes_after / 1e9,
+                )
+            registry.refresh_cached_cycles()
+            await asyncio.sleep(settings.janitor_interval_s)
+
+    task = asyncio.create_task(janitor_loop()) if settings.janitor_interval_s > 0 else None
     yield
+    if task is not None:
+        task.cancel()
 
 
 app = FastAPI(
@@ -47,4 +69,5 @@ def sources_status() -> dict:
         "sources": [asdict(s) for s in registry.statuses()],
         "cache_dir": settings.cache_dir,
         "cache_max_gb": settings.cache_max_gb,
+        "cache_used_gb": registry.cache_used_gb(),
     }
