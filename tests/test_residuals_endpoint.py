@@ -1,0 +1,190 @@
+"""POST /v1/residuals against recorded fixtures — including a contract test
+that reproduces PR #6's agent/attestation_loop.py::reference_check parsing."""
+
+import pytest
+
+
+TIME = "2024-06-24T12:00:00Z"
+DULUTH = {"lat": 46.8369, "lon": -92.1833, "elevation_m": 186.0, "time": TIME}
+
+
+def reference_values(client, variables=None, sources=None):
+    body = {"points": [DULUTH]}
+    if variables:
+        body["variables"] = variables
+    if sources:
+        body["sources"] = sources
+    resp = client.post("/v1/reference", json=body).json()
+    return {s["source"]: s for s in resp["results"][0]["sources"]}
+
+
+def post_residuals(client, observation, **overrides):
+    body = {"observations": [{**DULUTH, "observation": observation}], **overrides}
+    return client.post("/v1/residuals", json=body)
+
+
+def test_residuals_are_observed_minus_reference_canonical_units(client):
+    refs = reference_values(client)
+    obs = {"temperature_c": refs["hrrr"]["values"]["temperature_c"] + 1.5,
+           "pressure_hpa": refs["hrrr"]["values"]["pressure_hpa"] - 2.0}
+    body = post_residuals(client, obs).json()
+    (result,) = body["results"]
+    hrrr = {s["source"]: s for s in result["per_source"]}["hrrr"]
+    assert hrrr["residuals"]["temperature_c"] == pytest.approx(1.5, abs=1e-3)
+    assert hrrr["residuals"]["pressure_hpa"] == pytest.approx(-2.0, abs=1e-3)
+    # Sign preserved; ratios are |residual| / marginal_max from bands v1.
+    assert hrrr["band_ratios"]["temperature_c"] == pytest.approx(1.5 / 5.0, abs=1e-3)
+    assert hrrr["band_ratios"]["pressure_hpa"] == pytest.approx(2.0 / 6.0, abs=1e-3)
+    assert hrrr["reference"]["temperature_c"] == refs["hrrr"]["values"]["temperature_c"]
+    assert result["bands_version"] == 1
+
+
+def test_band_pairs_without_bands_are_skipped(client):
+    body = post_residuals(client, {"rainfall_mm": 0.0}).json()
+    by_source = {s["source"]: s for s in body["results"][0]["per_source"]}
+    assert "rainfall_mm" in by_source["mrms"]["residuals"]
+    # era5 has no rainfall band: the source entry reports an error, no residual.
+    if "era5" in by_source:
+        assert "rainfall_mm" not in by_source["era5"]["residuals"]
+
+
+def test_worst_is_max_ratio_across_sources_and_variables(client):
+    refs = reference_values(client)
+    obs = {"temperature_c": refs["hrrr"]["values"]["temperature_c"] + 8.0}  # hrrr ratio 1.6
+    body = post_residuals(client, obs, sources=["hrrr"]).json()
+    (result,) = body["results"]
+    assert result["worst"]["source"] == "hrrr"
+    assert result["worst"]["variable"] == "temperature_c"
+    assert result["worst_ratio"] == pytest.approx(8.0 / 5.0, abs=1e-2)
+    assert result["worst_ratio"] > result["marginal_threshold"]
+
+
+def test_ratio_mode_thresholds(client):
+    body = post_residuals(client, {"temperature_c": 14.0}).json()
+    (result,) = body["results"]
+    assert result["marginal_threshold"] == 1.0
+    assert result["outlier_threshold"] == 2.0
+
+
+def test_strict_mode_decides_exactly_like_ratio_mode(client):
+    """Strict-mode thresholds are scaled per result so PR #6's raw-residual
+    comparison is mathematically equivalent to the band-ratio comparison."""
+    refs = reference_values(client)
+    cases = [
+        {"temperature_c": refs["hrrr"]["values"]["temperature_c"] + 0.5,
+         "humidity_pct": refs["hrrr"]["values"]["humidity_pct"] - 13.0},  # good, mixed units
+        {"temperature_c": refs["hrrr"]["values"]["temperature_c"] + 6.5},  # marginal-ish
+        {"temperature_c": 40.0, "pressure_hpa": 950.0},  # fraud
+    ]
+    for obs in cases:
+        strict = post_residuals(client, obs, mode="strict").json()["results"][0]
+        ratio = post_residuals(client, obs).json()["results"][0]
+        approved_s, conf_s = _reference_check_pr6(strict, "residuals")
+        approved_r, conf_r = _reference_check_pr6(ratio, "band_ratios")
+        assert approved_s == approved_r, obs
+        assert conf_s == pytest.approx(conf_r, abs=1e-3), obs
+
+
+def test_flattened_core4_reading_shape_accepted(client):
+    """core4 canonical readings carry variables at the top level."""
+    reading = {**DULUTH, "temperature_c": 14.0, "pressure_hpa": 990.0}
+    body = client.post("/v1/residuals", json={"observations": [reading]}).json()
+    hrrr = {s["source"]: s for s in body["results"][0]["per_source"]}["hrrr"]
+    assert "temperature_c" in hrrr["residuals"]
+    assert "pressure_hpa" in hrrr["residuals"]
+
+
+def test_observed_at_unix_accepted(client):
+    import datetime as dt
+
+    ts = int(dt.datetime(2024, 6, 24, 12, tzinfo=dt.timezone.utc).timestamp())
+    for stamp in (ts, ts * 1000):  # seconds and milliseconds
+        ob = {"lat": DULUTH["lat"], "lon": DULUTH["lon"], "elevation_m": 186.0,
+              "observed_at_unix": stamp, "observation": {"temperature_c": 14.0}}
+        resp = client.post("/v1/residuals", json={"observations": [ob]})
+        assert resp.status_code == 200, stamp
+
+
+def test_validation_errors(client):
+    no_time = {"lat": 46.8, "lon": -92.1, "observation": {"temperature_c": 1.0}}
+    assert client.post("/v1/residuals", json={"observations": [no_time]}).status_code == 422
+    bad_var = {**DULUTH, "observation": {"temperature_f": 60.0}}
+    assert client.post("/v1/residuals", json={"observations": [bad_var]}).status_code == 422
+    empty = {**DULUTH, "observation": {}}
+    assert client.post("/v1/residuals", json={"observations": [empty]}).status_code == 422
+
+
+# --------------------------------------------------------------------------
+# PR #6 contract tests: reproduce agent/attestation_loop.py::reference_check
+# parsing byte-for-byte. `agent/` lives on the still-open PR #6 branch, so the
+# logic is mirrored here rather than imported.
+# --------------------------------------------------------------------------
+
+
+def _reference_check_pr6(result: dict, key: str) -> tuple[bool, float]:
+    """PR #6's parsing; `key` is "residuals" (as merged today) or
+    "band_ratios" (after the one-line follow-up noted in the PR body)."""
+    worst = max((abs(r) for src in result["per_source"] for r in src[key].values()), default=0.0)
+    approved = worst <= result.get("marginal_threshold", float("inf"))
+    confidence = max(0.0, min(1.0, 1.0 - worst / (result.get("outlier_threshold", 1.0) or 1.0)))
+    return approved, round(confidence, 3)
+
+
+def good_reading(client):
+    refs = reference_values(client)
+    return {
+        "temperature_c": refs["hrrr"]["values"]["temperature_c"] + 0.5,
+        "pressure_hpa": refs["hrrr"]["values"]["pressure_hpa"] + 0.5,
+        "humidity_pct": refs["hrrr"]["values"]["humidity_pct"] - 3.0,
+        "wind_speed_ms": max(0.0, refs["hrrr"]["values"]["wind_speed_ms"] - 0.5),
+    }
+
+
+def test_pr6_reference_check_ratio_mode_with_band_ratios(client):
+    """Default mode + the documented one-line PR #6 change (band_ratios)."""
+    ob = {**DULUTH, "observation": good_reading(client)}
+    result = client.post("/v1/residuals", json={"observations": [ob]}).json()["results"][0]
+    approved, confidence = _reference_check_pr6(result, "band_ratios")
+    assert approved
+    assert confidence > 0.5
+
+    fraud = {**DULUTH, "observation": {"temperature_c": 40.0, "pressure_hpa": 950.0}}
+    result = client.post("/v1/residuals", json={"observations": [fraud]}).json()["results"][0]
+    approved, confidence = _reference_check_pr6(result, "band_ratios")
+    assert not approved
+    assert confidence == 0.0
+
+
+def test_pr6_reference_check_strict_mode_verbatim(client):
+    """mode=strict keeps PR #6 working UNCHANGED (raw residuals vs canonical
+    thresholds), at the cost of being conservative."""
+    ob = {**DULUTH, "observation": good_reading(client)}
+    body = {"observations": [ob], "mode": "strict"}
+    result = client.post("/v1/residuals", json=body).json()["results"][0]
+    approved, confidence = _reference_check_pr6(result, "residuals")
+    assert approved
+    assert confidence > 0.0
+
+    fraud = {**DULUTH, "observation": {"temperature_c": 40.0, "pressure_hpa": 950.0}}
+    body = {"observations": [fraud], "mode": "strict"}
+    result = client.post("/v1/residuals", json=body).json()["results"][0]
+    approved, _ = _reference_check_pr6(result, "residuals")
+    assert not approved
+
+
+def test_pr6_request_shape_is_accepted_verbatim(client):
+    """PR #6 sends exactly {"observations": [reading]} — no sources/mode."""
+    reading = {**DULUTH, "observation": {"temperature_c": 14.0}}
+    resp = client.post("/v1/residuals", json={"observations": [reading]})
+    assert resp.status_code == 200
+    (result,) = resp.json()["results"]
+    assert "per_source" in result
+    assert "marginal_threshold" in result and "outlier_threshold" in result
+
+
+def test_no_tier_strings_anywhere(client):
+    """This service must never emit tier verdicts (good/degraded/outlier)."""
+    ob = {**DULUTH, "observation": {"temperature_c": 99.0}}  # way outside bands
+    text = client.post("/v1/residuals", json={"observations": [ob]}).text.lower()
+    for tier in ('"good"', '"degraded"', '"outlier"', "tier"):
+        assert tier not in text

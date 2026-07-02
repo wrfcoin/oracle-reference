@@ -5,8 +5,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models import ReferenceRequest, ReferenceResponse
+from app.models import (
+    ReferenceRequest,
+    ReferenceResponse,
+    ResidualsRequest,
+    ResidualsResponse,
+)
 from app.services.reference import compute_reference
+from app.services.residuals import compute_residuals
 
 router = APIRouter(prefix="/v1")
 
@@ -15,3 +21,8 @@ router = APIRouter(prefix="/v1")
 def reference(req: ReferenceRequest) -> ReferenceResponse:
     results = compute_reference(req.points, req.variables, req.sources)
     return ReferenceResponse(results=results)
+
+
+@router.post("/residuals", response_model=ResidualsResponse)
+def residuals(req: ResidualsRequest) -> ResidualsResponse:
+    return ResidualsResponse(results=compute_residuals(req))
