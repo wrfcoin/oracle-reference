@@ -1,0 +1,227 @@
+[
+  {
+    "file": "era5_humidity_pct_duluth.npz",
+    "source": "era5",
+    "variable": "humidity_pct",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "era5_pressure_hpa_duluth.npz",
+    "source": "era5",
+    "variable": "pressure_hpa",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "era5_temperature_c_duluth.npz",
+    "source": "era5",
+    "variable": "temperature_c",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "era5_wind_speed_ms_duluth.npz",
+    "source": "era5",
+    "variable": "wind_speed_ms",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_humidity_pct_duluth.npz",
+    "source": "gfs",
+    "variable": "humidity_pct",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_pressure_hpa_duluth.npz",
+    "source": "gfs",
+    "variable": "pressure_hpa",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_rainfall_mm_duluth.npz",
+    "source": "gfs",
+    "variable": "rainfall_mm",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_temperature_c_duluth.npz",
+    "source": "gfs",
+    "variable": "temperature_c",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_wind_speed_ms_duluth.npz",
+    "source": "gfs",
+    "variable": "wind_speed_ms",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_fx_humidity_pct_duluth.npz",
+    "source": "gfs_fx",
+    "variable": "humidity_pct",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_fx_pressure_hpa_duluth.npz",
+    "source": "gfs_fx",
+    "variable": "pressure_hpa",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_fx_rainfall_mm_duluth.npz",
+    "source": "gfs_fx",
+    "variable": "rainfall_mm",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_fx_temperature_c_duluth.npz",
+    "source": "gfs_fx",
+    "variable": "temperature_c",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "gfs_fx_wind_speed_ms_duluth.npz",
+    "source": "gfs_fx",
+    "variable": "wind_speed_ms",
+    "cycle": "2024-06-24T06:00:00+00:00",
+    "lead_hours": 6.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.25
+  },
+  {
+    "file": "hrrr_humidity_pct_duluth.npz",
+    "source": "hrrr",
+    "variable": "humidity_pct",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_pressure_hpa_duluth.npz",
+    "source": "hrrr",
+    "variable": "pressure_hpa",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_rainfall_mm_duluth.npz",
+    "source": "hrrr",
+    "variable": "rainfall_mm",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_temperature_c_duluth.npz",
+    "source": "hrrr",
+    "variable": "temperature_c",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_wind_speed_ms_duluth.npz",
+    "source": "hrrr",
+    "variable": "wind_speed_ms",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_fx_humidity_pct_duluth.npz",
+    "source": "hrrr_fx",
+    "variable": "humidity_pct",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_fx_pressure_hpa_duluth.npz",
+    "source": "hrrr_fx",
+    "variable": "pressure_hpa",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_fx_rainfall_mm_duluth.npz",
+    "source": "hrrr_fx",
+    "variable": "rainfall_mm",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_fx_temperature_c_duluth.npz",
+    "source": "hrrr_fx",
+    "variable": "temperature_c",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "hrrr_fx_wind_speed_ms_duluth.npz",
+    "source": "hrrr_fx",
+    "variable": "wind_speed_ms",
+    "cycle": "2024-06-24T11:00:00+00:00",
+    "lead_hours": 1.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.026638832871345386
+  },
+  {
+    "file": "mrms_rainfall_mm_duluth.npz",
+    "source": "mrms",
+    "variable": "rainfall_mm",
+    "cycle": "2024-06-24T12:00:00+00:00",
+    "lead_hours": 0.0,
+    "valid_time": "2024-06-24T12:00:00+00:00",
+    "resolution_deg": 0.01
+  }
+]
