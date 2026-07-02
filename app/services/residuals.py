@@ -94,13 +94,13 @@ def _thresholds(
 ) -> tuple[float, float]:
     if mode == "ratio":
         return RATIO_MARGINAL_THRESHOLD, RATIO_OUTLIER_THRESHOLD
-    # strict: per-RESULT thresholds scaled so that a consumer comparing
+    # raw (default): per-RESULT thresholds scaled so that a consumer comparing
     # max(|raw residual|) against them (PR #6's reference_check, verbatim)
     # decides EXACTLY as the ratio comparison would:
     #   max_raw <= scale  <=>  worst_ratio <= 1
     #   1 - max_raw / (2 * scale) == 1 - worst_ratio / 2
-    # These thresholds are per-result values, not constants — documented on
-    # the response model; the ratio mode is the stable contract.
+    # These thresholds are per-result values, not constants — the ratio mode
+    # is the stable dimensionless contract.
     if worst is None or worst.band_ratio == 0.0:
         return RATIO_MARGINAL_THRESHOLD, RATIO_OUTLIER_THRESHOLD  # nothing to gate
     max_raw = max(abs(r) for s in per_source for r in s.residuals.values())

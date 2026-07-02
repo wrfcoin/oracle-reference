@@ -147,11 +147,14 @@ class Observation(BaseModel):
 class ResidualsRequest(BaseModel):
     observations: list[Observation] = Field(min_length=1, max_length=100)
     sources: Optional[list[str]] = None
-    # "ratio" (default): top-level thresholds in dimensionless band-ratio
-    # space (marginal=1.0). "strict": conservative canonical-unit thresholds
-    # for consumers that compare raw residuals (PR #6's reference_check until
-    # its one-line switch to band_ratios lands).
-    mode: Literal["ratio", "strict"] = "ratio"
+    # Which space the top-level marginal/outlier thresholds are expressed in;
+    # it must match how the consumer compares:
+    # - "raw" (default): compare max(|residuals|) (canonical units) against
+    #   per-result scaled thresholds — the attestation loop's reference_check
+    #   works verbatim, and the decision is exactly the band-ratio decision.
+    # - "ratio": compare max(band_ratios) against the constants 1.0 / 2.0
+    #   (the stable dimensionless contract).
+    mode: Literal["raw", "ratio"] = "raw"
 
     @field_validator("sources")
     @classmethod

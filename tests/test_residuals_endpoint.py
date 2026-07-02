@@ -51,7 +51,7 @@ def test_band_pairs_without_bands_are_skipped(client):
 def test_worst_is_max_ratio_across_sources_and_variables(client):
     refs = reference_values(client)
     obs = {"temperature_c": refs["hrrr"]["values"]["temperature_c"] + 8.0}  # hrrr ratio 1.6
-    body = post_residuals(client, obs, sources=["hrrr"]).json()
+    body = post_residuals(client, obs, sources=["hrrr"], mode="ratio").json()
     (result,) = body["results"]
     assert result["worst"]["source"] == "hrrr"
     assert result["worst"]["variable"] == "temperature_c"
@@ -59,15 +59,15 @@ def test_worst_is_max_ratio_across_sources_and_variables(client):
     assert result["worst_ratio"] > result["marginal_threshold"]
 
 
-def test_ratio_mode_thresholds(client):
-    body = post_residuals(client, {"temperature_c": 14.0}).json()
+def test_ratio_mode_thresholds_are_constants(client):
+    body = post_residuals(client, {"temperature_c": 14.0}, mode="ratio").json()
     (result,) = body["results"]
     assert result["marginal_threshold"] == 1.0
     assert result["outlier_threshold"] == 2.0
 
 
-def test_strict_mode_decides_exactly_like_ratio_mode(client):
-    """Strict-mode thresholds are scaled per result so PR #6's raw-residual
+def test_default_raw_mode_decides_exactly_like_ratio_mode(client):
+    """Default (raw) thresholds are scaled per result so a raw-residual
     comparison is mathematically equivalent to the band-ratio comparison."""
     refs = reference_values(client)
     cases = [
@@ -77,12 +77,12 @@ def test_strict_mode_decides_exactly_like_ratio_mode(client):
         {"temperature_c": 40.0, "pressure_hpa": 950.0},  # fraud
     ]
     for obs in cases:
-        strict = post_residuals(client, obs, mode="strict").json()["results"][0]
-        ratio = post_residuals(client, obs).json()["results"][0]
-        approved_s, conf_s = _reference_check_pr6(strict, "residuals")
+        raw = post_residuals(client, obs).json()["results"][0]
+        ratio = post_residuals(client, obs, mode="ratio").json()["results"][0]
+        approved_raw, conf_raw = _reference_check_pr6(raw, "residuals")
         approved_r, conf_r = _reference_check_pr6(ratio, "band_ratios")
-        assert approved_s == approved_r, obs
-        assert conf_s == pytest.approx(conf_r, abs=1e-3), obs
+        assert approved_raw == approved_r, obs
+        assert conf_raw == pytest.approx(conf_r, abs=1e-3), obs
 
 
 def test_flattened_core4_reading_shape_accepted(client):
@@ -122,8 +122,9 @@ def test_validation_errors(client):
 
 
 def _reference_check_pr6(result: dict, key: str) -> tuple[bool, float]:
-    """PR #6's parsing; `key` is "residuals" (as merged today) or
-    "band_ratios" (after the one-line follow-up noted in the PR body)."""
+    """PR #6's parsing; `key` is "residuals" (PR #6 as written — correct
+    against the default raw mode) or "band_ratios" (the dimensionless
+    contract, paired with mode="ratio")."""
     worst = max((abs(r) for src in result["per_source"] for r in src[key].values()), default=0.0)
     approved = worst <= result.get("marginal_threshold", float("inf"))
     confidence = max(0.0, min(1.0, 1.0 - worst / (result.get("outlier_threshold", 1.0) or 1.0)))
@@ -141,33 +142,33 @@ def good_reading(client):
 
 
 def test_pr6_reference_check_ratio_mode_with_band_ratios(client):
-    """Default mode + the documented one-line PR #6 change (band_ratios)."""
+    """mode=ratio + the documented one-line PR #6 change (band_ratios)."""
     ob = {**DULUTH, "observation": good_reading(client)}
-    result = client.post("/v1/residuals", json={"observations": [ob]}).json()["results"][0]
+    body = {"observations": [ob], "mode": "ratio"}
+    result = client.post("/v1/residuals", json=body).json()["results"][0]
     approved, confidence = _reference_check_pr6(result, "band_ratios")
     assert approved
     assert confidence > 0.5
 
     fraud = {**DULUTH, "observation": {"temperature_c": 40.0, "pressure_hpa": 950.0}}
-    result = client.post("/v1/residuals", json={"observations": [fraud]}).json()["results"][0]
+    body = {"observations": [fraud], "mode": "ratio"}
+    result = client.post("/v1/residuals", json=body).json()["results"][0]
     approved, confidence = _reference_check_pr6(result, "band_ratios")
     assert not approved
     assert confidence == 0.0
 
 
-def test_pr6_reference_check_strict_mode_verbatim(client):
-    """mode=strict keeps PR #6 working UNCHANGED (raw residuals vs canonical
-    thresholds), at the cost of being conservative."""
+def test_pr6_reference_check_verbatim_against_default_mode(client):
+    """PR #6 as written today ({"observations": [reading]}, no mode; compares
+    raw residuals) must decide correctly against the default response."""
     ob = {**DULUTH, "observation": good_reading(client)}
-    body = {"observations": [ob], "mode": "strict"}
-    result = client.post("/v1/residuals", json=body).json()["results"][0]
+    result = client.post("/v1/residuals", json={"observations": [ob]}).json()["results"][0]
     approved, confidence = _reference_check_pr6(result, "residuals")
     assert approved
     assert confidence > 0.0
 
     fraud = {**DULUTH, "observation": {"temperature_c": 40.0, "pressure_hpa": 950.0}}
-    body = {"observations": [fraud], "mode": "strict"}
-    result = client.post("/v1/residuals", json=body).json()["results"][0]
+    result = client.post("/v1/residuals", json={"observations": [fraud]}).json()["results"][0]
     approved, _ = _reference_check_pr6(result, "residuals")
     assert not approved
 
