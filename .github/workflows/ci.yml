@@ -16,5 +16,5 @@ jobs:
           cache: pip
       # Slim deps only — unit tests must never need torch/earth2studio or network.
       - run: pip install -r requirements-ci.txt
-      - run: ruff check app tests
+      - run: ruff check app agent tests
       - run: pytest -q
