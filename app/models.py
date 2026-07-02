@@ -219,7 +219,8 @@ class SeriesSample(BaseModel):
 
 
 class PlausibilityOptions(BaseModel):
-    reference_source: Literal["era5", "gfs", "hrrr"] = "era5"
+    # Box-series capable analysis sources (regular grids with hourly archives).
+    reference_source: Literal["era5", "gfs"] = "era5"
     search_radius_deg: float = Field(default=6.0, gt=0.0, le=15.0)
     search_step_deg: float = Field(default=0.5, gt=0.05, le=2.0)
     resample_hours: int = Field(default=3, ge=1, le=6)

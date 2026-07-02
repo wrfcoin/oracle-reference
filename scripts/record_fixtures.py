@@ -103,6 +103,49 @@ def record_era5_box(out_dir: Path) -> None:
     print(f"wrote era5_box_duluth.npz {t2m.shape} to {out_dir}")
 
 
+def derive_station_series(out_dir: Path) -> None:
+    """Synthetic-but-realistic 7-day Duluth station series derived from the
+    recorded ERA5 box: temperature = ERA5 t2m at the Duluth cell + noise;
+    pressure = ERA5 MSLP reduced to the KDLH-like 430 m station elevation, so
+    the pressure-implied elevation lands ~430 m (the issue #3 acceptance
+    demo). Deterministic (seeded) so re-runs reproduce the checked-in file."""
+    from app import hypso  # noqa: PLC0415
+
+    station_elev = 430.0
+    data = np.load(out_dir / "era5_box_duluth.npz")
+    times = [datetime.fromisoformat(t) for t in data["times"]]
+    cy, cx = len(data["lats"]) // 2, len(data["lons"]) // 2  # Duluth cell
+    t2m_c = data["t2m_k"][:, cy, cx] - 273.15
+    mslp_hpa = data["msl_pa"][:, cy, cx] / 100.0
+    rng = np.random.default_rng(42)
+    samples = []
+    for i, t in enumerate(times):
+        temp = float(t2m_c[i] + rng.normal(0.0, 0.4))
+        t_sl_k = temp + 273.15 + hypso.LAPSE * station_elev
+        pressure = hypso.correct_pressure_to_station(
+            float(mslp_hpa[i]), 0.0, station_elev, t_sl_k
+        ) + float(rng.normal(0.0, 0.15))
+        samples.append(
+            {
+                "time": t.isoformat(),
+                "observation": {
+                    "temperature_c": round(temp, 2),
+                    "pressure_hpa": round(pressure, 2),
+                },
+            }
+        )
+    out = {
+        "description": "synthetic Duluth 7-day series derived from era5_box_duluth.npz "
+        "(t2m + noise; MSLP reduced to 430 m station elevation)",
+        "station_elevation_m": station_elev,
+        "lat": DULUTH[0],
+        "lon": DULUTH[1],
+        "series": samples,
+    }
+    (out_dir / "duluth_7day_series.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(f"wrote duluth_7day_series.json ({len(samples)} samples)")
+
+
 def record_mrms_grib(out_dir: Path) -> None:
     """Keep one real (gzipped) MRMS GRIB2 for the decode test, if small enough."""
     from app.sources.mrms import MRMSSource  # noqa: PLC0415
@@ -124,6 +167,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path("tests/fixtures"))
     parser.add_argument("--era5-box", action="store_true")
+    parser.add_argument("--series", action="store_true", help="derive station series (no network)")
     parser.add_argument("--mrms-grib", action="store_true")
     parser.add_argument("--skip-tiles", action="store_true")
     args = parser.parse_args()
@@ -132,5 +176,7 @@ if __name__ == "__main__":
         record_tiles(args.out)
     if args.era5_box:
         record_era5_box(args.out)
+    if args.series:
+        derive_station_series(args.out)
     if args.mrms_grib:
         record_mrms_grib(args.out)

@@ -1,0 +1,400 @@
+{
+ "description": "synthetic Duluth 7-day series derived from era5_box_duluth.npz (t2m + noise; MSLP reduced to 430 m station elevation)",
+ "station_elevation_m": 430.0,
+ "lat": 46.8369,
+ "lon": -92.1833,
+ "series": [
+  {
+   "time": "2024-06-17T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 19.52,
+    "pressure_hpa": 954.11
+   }
+  },
+  {
+   "time": "2024-06-17T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 19.55,
+    "pressure_hpa": 956.16
+   }
+  },
+  {
+   "time": "2024-06-17T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 17.66,
+    "pressure_hpa": 958.21
+   }
+  },
+  {
+   "time": "2024-06-17T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.17,
+    "pressure_hpa": 958.43
+   }
+  },
+  {
+   "time": "2024-06-17T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.86,
+    "pressure_hpa": 960.42
+   }
+  },
+  {
+   "time": "2024-06-17T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.12,
+    "pressure_hpa": 961.18
+   }
+  },
+  {
+   "time": "2024-06-17T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.93,
+    "pressure_hpa": 960.95
+   }
+  },
+  {
+   "time": "2024-06-17T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 16.75,
+    "pressure_hpa": 960.69
+   }
+  },
+  {
+   "time": "2024-06-18T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.44,
+    "pressure_hpa": 959.9
+   }
+  },
+  {
+   "time": "2024-06-18T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.83,
+    "pressure_hpa": 959.81
+   }
+  },
+  {
+   "time": "2024-06-18T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.15,
+    "pressure_hpa": 956.83
+   }
+  },
+  {
+   "time": "2024-06-18T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.04,
+    "pressure_hpa": 955.14
+   }
+  },
+  {
+   "time": "2024-06-18T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 17.33,
+    "pressure_hpa": 954.23
+   }
+  },
+  {
+   "time": "2024-06-18T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 22.08,
+    "pressure_hpa": 955.54
+   }
+  },
+  {
+   "time": "2024-06-18T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 21.99,
+    "pressure_hpa": 955.03
+   }
+  },
+  {
+   "time": "2024-06-18T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 24.29,
+    "pressure_hpa": 956.27
+   }
+  },
+  {
+   "time": "2024-06-19T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 20.39,
+    "pressure_hpa": 953.27
+   }
+  },
+  {
+   "time": "2024-06-19T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 20.03,
+    "pressure_hpa": 956.69
+   }
+  },
+  {
+   "time": "2024-06-19T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 17.34,
+    "pressure_hpa": 957.58
+   }
+  },
+  {
+   "time": "2024-06-19T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.44,
+    "pressure_hpa": 961.96
+   }
+  },
+  {
+   "time": "2024-06-19T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.69,
+    "pressure_hpa": 966.44
+   }
+  },
+  {
+   "time": "2024-06-19T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.54,
+    "pressure_hpa": 970.84
+   }
+  },
+  {
+   "time": "2024-06-19T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 17.34,
+    "pressure_hpa": 973.72
+   }
+  },
+  {
+   "time": "2024-06-19T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 19.68,
+    "pressure_hpa": 975.21
+   }
+  },
+  {
+   "time": "2024-06-20T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 19.28,
+    "pressure_hpa": 975.16
+   }
+  },
+  {
+   "time": "2024-06-20T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.58,
+    "pressure_hpa": 975.94
+   }
+  },
+  {
+   "time": "2024-06-20T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.4,
+    "pressure_hpa": 975.86
+   }
+  },
+  {
+   "time": "2024-06-20T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.52,
+    "pressure_hpa": 976.67
+   }
+  },
+  {
+   "time": "2024-06-20T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.47,
+    "pressure_hpa": 978.42
+   }
+  },
+  {
+   "time": "2024-06-20T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.59,
+    "pressure_hpa": 978.6
+   }
+  },
+  {
+   "time": "2024-06-20T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.03,
+    "pressure_hpa": 977.87
+   }
+  },
+  {
+   "time": "2024-06-20T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 16.83,
+    "pressure_hpa": 977.86
+   }
+  },
+  {
+   "time": "2024-06-21T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.25,
+    "pressure_hpa": 976.22
+   }
+  },
+  {
+   "time": "2024-06-21T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.46,
+    "pressure_hpa": 975.24
+   }
+  },
+  {
+   "time": "2024-06-21T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.13,
+    "pressure_hpa": 974.57
+   }
+  },
+  {
+   "time": "2024-06-21T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 10.29,
+    "pressure_hpa": 973.18
+   }
+  },
+  {
+   "time": "2024-06-21T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.4,
+    "pressure_hpa": 973.64
+   }
+  },
+  {
+   "time": "2024-06-21T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.75,
+    "pressure_hpa": 972.99
+   }
+  },
+  {
+   "time": "2024-06-21T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.29,
+    "pressure_hpa": 972.24
+   }
+  },
+  {
+   "time": "2024-06-21T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.95,
+    "pressure_hpa": 970.51
+   }
+  },
+  {
+   "time": "2024-06-22T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 16.67,
+    "pressure_hpa": 969.11
+   }
+  },
+  {
+   "time": "2024-06-22T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.93,
+    "pressure_hpa": 968.07
+   }
+  },
+  {
+   "time": "2024-06-22T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.5,
+    "pressure_hpa": 966.63
+   }
+  },
+  {
+   "time": "2024-06-22T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.47,
+    "pressure_hpa": 964.7
+   }
+  },
+  {
+   "time": "2024-06-22T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 13.11,
+    "pressure_hpa": 963.35
+   }
+  },
+  {
+   "time": "2024-06-22T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.87,
+    "pressure_hpa": 962.4
+   }
+  },
+  {
+   "time": "2024-06-22T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 15.64,
+    "pressure_hpa": 961.28
+   }
+  },
+  {
+   "time": "2024-06-22T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 14.69,
+    "pressure_hpa": 960.75
+   }
+  },
+  {
+   "time": "2024-06-23T00:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.18,
+    "pressure_hpa": 959.9
+   }
+  },
+  {
+   "time": "2024-06-23T03:00:00+00:00",
+   "observation": {
+    "temperature_c": 12.01,
+    "pressure_hpa": 960.4
+   }
+  },
+  {
+   "time": "2024-06-23T06:00:00+00:00",
+   "observation": {
+    "temperature_c": 10.19,
+    "pressure_hpa": 959.78
+   }
+  },
+  {
+   "time": "2024-06-23T09:00:00+00:00",
+   "observation": {
+    "temperature_c": 10.88,
+    "pressure_hpa": 959.64
+   }
+  },
+  {
+   "time": "2024-06-23T12:00:00+00:00",
+   "observation": {
+    "temperature_c": 11.67,
+    "pressure_hpa": 959.57
+   }
+  },
+  {
+   "time": "2024-06-23T15:00:00+00:00",
+   "observation": {
+    "temperature_c": 16.59,
+    "pressure_hpa": 960.26
+   }
+  },
+  {
+   "time": "2024-06-23T18:00:00+00:00",
+   "observation": {
+    "temperature_c": 20.78,
+    "pressure_hpa": 960.54
+   }
+  },
+  {
+   "time": "2024-06-23T21:00:00+00:00",
+   "observation": {
+    "temperature_c": 23.07,
+    "pressure_hpa": 960.63
+   }
+  }
+ ]
+}

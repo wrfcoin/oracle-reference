@@ -6,11 +6,14 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.models import (
+    PlausibilityRequest,
+    PlausibilityResponse,
     ReferenceRequest,
     ReferenceResponse,
     ResidualsRequest,
     ResidualsResponse,
 )
+from app.services.plausibility import check_plausibility
 from app.services.reference import compute_reference
 from app.services.residuals import compute_residuals
 
@@ -26,3 +29,8 @@ def reference(req: ReferenceRequest) -> ReferenceResponse:
 @router.post("/residuals", response_model=ResidualsResponse)
 def residuals(req: ResidualsRequest) -> ResidualsResponse:
     return ResidualsResponse(results=compute_residuals(req))
+
+
+@router.post("/location-plausibility", response_model=PlausibilityResponse)
+def location_plausibility(req: PlausibilityRequest) -> PlausibilityResponse:
+    return check_plausibility(req)
