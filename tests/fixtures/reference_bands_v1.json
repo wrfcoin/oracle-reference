@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "sources": {
+    "hrrr": {
+      "temperature_c": { "good_max": 2.0, "marginal_max": 5.0 },
+      "pressure_hpa": { "good_max": 2.5, "marginal_max": 6.0 },
+      "humidity_pct": { "good_max": 10.0, "marginal_max": 25.0 },
+      "wind_speed_ms": { "good_max": 3.0, "marginal_max": 7.0 },
+      "rainfall_mm": { "good_max": 2.0, "marginal_max": 10.0 }
+    },
+    "hrrr_fx": {
+      "temperature_c": { "good_max": 2.5, "marginal_max": 6.0 },
+      "pressure_hpa": { "good_max": 3.0, "marginal_max": 7.0 },
+      "humidity_pct": { "good_max": 12.0, "marginal_max": 30.0 },
+      "wind_speed_ms": { "good_max": 3.5, "marginal_max": 8.0 },
+      "rainfall_mm": { "good_max": 3.0, "marginal_max": 12.0 }
+    },
+    "gfs": {
+      "temperature_c": { "good_max": 3.0, "marginal_max": 7.0 },
+      "pressure_hpa": { "good_max": 3.5, "marginal_max": 8.0 },
+      "humidity_pct": { "good_max": 15.0, "marginal_max": 35.0 },
+      "wind_speed_ms": { "good_max": 4.0, "marginal_max": 9.0 },
+      "rainfall_mm": { "good_max": 5.0, "marginal_max": 15.0 }
+    },
+    "gfs_fx": {
+      "temperature_c": { "good_max": 3.5, "marginal_max": 8.0 },
+      "pressure_hpa": { "good_max": 4.0, "marginal_max": 9.0 },
+      "humidity_pct": { "good_max": 18.0, "marginal_max": 40.0 },
+      "wind_speed_ms": { "good_max": 4.5, "marginal_max": 10.0 },
+      "rainfall_mm": { "good_max": 6.0, "marginal_max": 18.0 }
+    },
+    "mrms": {
+      "rainfall_mm": { "good_max": 1.5, "marginal_max": 8.0 }
+    },
+    "era5": {
+      "temperature_c": { "good_max": 2.5, "marginal_max": 6.0 },
+      "pressure_hpa": { "good_max": 2.5, "marginal_max": 6.0 },
+      "humidity_pct": { "good_max": 12.0, "marginal_max": 30.0 },
+      "wind_speed_ms": { "good_max": 3.5, "marginal_max": 8.0 }
+    }
+  }
+}
