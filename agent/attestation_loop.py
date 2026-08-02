@@ -69,7 +69,7 @@ class Config:
                 ("REFERENCE_URL", self.reference_url),
                 ("SIGNER_BIN", self.signer_bin),
             )
-            if not value
+            if not value.strip()
         ]
         if missing:
             raise ConfigurationError(
@@ -90,18 +90,35 @@ def _get_json(url: str, token: str) -> dict[str, Any]:
     return payload
 
 
-def _post_json(url: str, body: dict[str, Any]) -> tuple[int, str]:
+def _require_oracle_token(token: str) -> str:
+    if not token.strip():
+        raise ConfigurationError("ORACLE_TOKEN must be injected and non-empty")
+    return token
+
+
+def _redact_secret(text: str, secret: str | None) -> str:
+    if not secret:
+        return text
+    return text.replace(secret, "[REDACTED]")
+
+
+def _post_json(
+    url: str, body: dict[str, Any], *, token: str | None = None
+) -> tuple[int, str]:
+    headers = {"Content-Type": "application/json"}
+    if token is not None:
+        headers["Authorization"] = f"Bearer {_require_oracle_token(token)}"
     request = urllib.request.Request(
         url,
         data=json.dumps(body).encode(),
         method="POST",
-        headers={"Content-Type": "application/json"},
+        headers=headers,
     )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310
             return response.status, response.read().decode()
     except urllib.error.HTTPError as error:
-        return error.code, error.read().decode()
+        return error.code, _redact_secret(error.read().decode(), token)
 
 
 def oracle_status(cfg: Config) -> dict[str, Any]:
@@ -194,6 +211,7 @@ def sign_attestation(
 
 
 def run_once(cfg: Config, pending: list[dict[str, Any]]) -> int:
+    _require_oracle_token(cfg.oracle_token)
     status = oracle_status(cfg)
     if int(status.get("commits_pending_quorum", 0)) <= 0:
         return 0
@@ -208,7 +226,9 @@ def run_once(cfg: Config, pending: list[dict[str, Any]]) -> int:
         if cfg.dry_run:
             continue
         code, response = _post_json(
-            f"{cfg.node_url}/transactions/oracle/attestation", body
+            f"{cfg.node_url}/transactions/oracle/attestation",
+            body,
+            token=cfg.oracle_token,
         )
         if not 200 <= code < 300:
             raise RuntimeError(
