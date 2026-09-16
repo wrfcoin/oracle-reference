@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
     && pip install --no-cache-dir -r requirements.txt
 
 COPY app/ app/
+COPY pyproject.toml .
 
 ENV PORT=8010 \
     EARTH2STUDIO_CACHE=/data/cache \

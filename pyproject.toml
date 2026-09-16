@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+# `live` tests hit real upstream data sources — excluded by default so plain
+# `pytest -q` (what CI runs) never needs network. Run them explicitly:
+#   pytest -m live
+addopts = "-m 'not live'"
+markers = [
+    "live: hits real upstream data sources (manual/nightly only)",
+    "grib: requires cfgrib/eccodes for real GRIB decode (auto-skips when absent)",
+]

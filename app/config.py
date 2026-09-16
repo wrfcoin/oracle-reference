@@ -17,6 +17,8 @@ class Settings:
     enabled_sources: list[str] = field(default_factory=_sources_from_env)
     # Timeout for a single upstream fetch (byte-ranged GRIB from NOAA S3 etc.)
     fetch_timeout_s: float = float(os.environ.get("FETCH_TIMEOUT_S", "120"))
+    # Cache-janitor sweep interval (seconds); 0 disables the background loop.
+    janitor_interval_s: float = float(os.environ.get("JANITOR_INTERVAL_S", "900"))
 
 
 settings = Settings()
