@@ -32,11 +32,11 @@ def test_residuals_are_observed_minus_reference_canonical_units(client):
     hrrr = {s["source"]: s for s in result["per_source"]}["hrrr"]
     assert hrrr["residuals"]["temperature_c"] == pytest.approx(1.5, abs=1e-3)
     assert hrrr["residuals"]["pressure_hpa"] == pytest.approx(-2.0, abs=1e-3)
-    # Sign preserved; ratios are |residual| / marginal_max from bands v1.
+    # Sign preserved; ratios are |residual| / marginal_max from bands v3.
     assert hrrr["band_ratios"]["temperature_c"] == pytest.approx(1.5 / 5.0, abs=1e-3)
     assert hrrr["band_ratios"]["pressure_hpa"] == pytest.approx(2.0 / 6.0, abs=1e-3)
     assert hrrr["reference"]["temperature_c"] == refs["hrrr"]["values"]["temperature_c"]
-    assert result["bands_version"] == 1
+    assert result["bands_version"] == 3
 
 
 def test_band_pairs_without_bands_are_skipped(client):
@@ -183,9 +183,33 @@ def test_pr6_request_shape_is_accepted_verbatim(client):
     assert "marginal_threshold" in result and "outlier_threshold" in result
 
 
-def test_no_tier_strings_anywhere(client):
-    """This service must never emit tier verdicts (good/degraded/outlier)."""
-    ob = {**DULUTH, "observation": {"temperature_c": 99.0}}  # way outside bands
-    text = client.post("/v1/residuals", json={"observations": [ob]}).text.lower()
-    for tier in ('"good"', '"degraded"', '"outlier"', "tier"):
-        assert tier not in text
+def test_advisory_tier_metadata_is_additive(client):
+    ob = {**DULUTH, "observation": {"temperature_c": 99.0}}
+    result = client.post("/v1/residuals", json={"observations": [ob]}).json()["results"][0]
+    assert result["tier"] == "outlier"
+    assert result["bands_version"] == 3
+    assert result["fold_rule"] == "second_worst"
+    assert result["gross_guard_active"] is False
+    assert "worst_ratio" in result and "marginal_threshold" in result
+
+
+@pytest.mark.parametrize("height, expected", [(99, "degraded"), (100, "outlier"), (101, "outlier")])
+def test_endpoint_selects_guard_at_activation_height(client, monkeypatch, height, expected):
+    from app.models import PointResult, SourceValues
+    from app.services import residuals
+    monkeypatch.setattr(residuals, "compute_reference", lambda points, *_: [PointResult(
+        point=points[0], sources=[SourceValues(source="nws_station", values={"temperature_c": 0, "humidity_pct": 0})]
+    )])
+    body = {"observations": [{**DULUTH, "observation": {"temperature_c": 10, "humidity_pct": 1}}],
+            "sources": ["nws_station"], "tiering_context": {"height": height, "gross_guard_activation_height": 100}}
+    response = client.post("/v1/residuals", json=body)
+    assert response.status_code == 200
+    result = response.json()["results"][0]
+    assert result["tier"] == expected
+    assert result["gross_guard_active"] is (height >= 100)
+    assert result["worst_ratio"] == 1.6667
+
+
+@pytest.mark.parametrize("context", [{"height": -1}, {"height": 1.5}, {"height": True}, {"height": 1, "gross_guard_activation_height": -1}])
+def test_invalid_activation_context_is_rejected(client, context):
+    assert post_residuals(client, {"temperature_c": 1}, tiering_context=context).status_code == 422

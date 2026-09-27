@@ -2,8 +2,8 @@
 
 Canonical variables and units match core4 shared-protocol
 (temperature_c °C, pressure_hpa hPa, humidity_pct %, wind_speed_ms m/s,
-rainfall_mm mm). This service returns reference values and residuals only —
-never quality-tier verdicts (those live in core4 Rust).
+rainfall_mm mm). Tier metadata is advisory and mirrors the pinned core4 policy; it does not
+change attestation confidence or consensus rewards.
 """
 
 from __future__ import annotations
@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
+
+from app.tiering import FOLD_RULE, FoldRule, Tier, gross_guard_active_at
 
 from app.bands import BANDS, BANDS_VERSION, CANONICAL_VARIABLES
 
@@ -144,7 +146,18 @@ class Observation(BaseModel):
         return merged
 
 
+class TieringContext(BaseModel):
+    # Caller supplies the chain schedule context; this service does not guess
+    # activation from wall time or call a live node.
+    height: int = Field(strict=True, ge=0, le=2**64 - 1)
+    gross_guard_activation_height: int | None = Field(default=None, strict=True, ge=0, le=2**64 - 1)
+
+    def gross_guard_active(self) -> bool:
+        return gross_guard_active_at(self.height, self.gross_guard_activation_height)
+
+
 class ResidualsRequest(BaseModel):
+    tiering_context: TieringContext | None = None
     observations: list[Observation] = Field(min_length=1, max_length=100)
     sources: Optional[list[str]] = None
     # Which space the top-level marginal/outlier thresholds are expressed in;
@@ -171,7 +184,7 @@ class SourceResiduals(BaseModel):
     cycle: Optional[datetime] = None
     lead_hours: Optional[float] = None
     residuals: dict[str, float] = Field(default_factory=dict)  # observed - reference, canonical units
-    band_ratios: dict[str, float] = Field(default_factory=dict)  # |residual| / marginal_max (bands v1)
+    band_ratios: dict[str, float] = Field(default_factory=dict)  # |residual| / marginal_max (bands v3)
     reference: dict[str, float] = Field(default_factory=dict)
     grid: Optional[GridMeta] = None
     error: Optional[str] = None
@@ -192,6 +205,9 @@ class ResidualResult(BaseModel):
     marginal_threshold: float
     outlier_threshold: float
     bands_version: int = BANDS_VERSION
+    tier: Tier
+    fold_rule: FoldRule = FOLD_RULE
+    gross_guard_active: bool = False
 
 
 class ResidualsResponse(BaseModel):

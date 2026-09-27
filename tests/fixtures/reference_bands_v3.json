@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 3,
   "sources": {
     "hrrr": {
       "temperature_c": { "good_max": 2.0, "marginal_max": 5.0 },
@@ -31,6 +31,12 @@
     },
     "mrms": {
       "rainfall_mm": { "good_max": 1.5, "marginal_max": 8.0 }
+    },
+    "nws_station": {
+      "temperature_c": { "good_max": 3.0, "marginal_max": 6.0, "gross_max": 9.0 },
+      "pressure_hpa": { "good_max": 8.0, "marginal_max": 15.0 },
+      "humidity_pct": { "good_max": 15.0, "marginal_max": 30.0, "gross_max": 45.0 },
+      "wind_speed_ms": { "good_max": 4.0, "marginal_max": 9.0, "gross_max": 13.5 }
     },
     "era5": {
       "temperature_c": { "good_max": 2.5, "marginal_max": 6.0 },

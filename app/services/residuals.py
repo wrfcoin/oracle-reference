@@ -3,9 +3,9 @@
 ``residuals`` are observed − reference in canonical units, sign preserved —
 identical semantics to core4 ``ReferenceResidual`` (the backend#866 shadow
 scorer consumes them). ``band_ratios`` express each residual as
-|residual| / marginal_max from the embedded bands v1, so mixed-unit residuals
-become comparable against the single top-level thresholds. Never any tier
-verdict — that mapping is consensus-adjacent and lives in core4 Rust.
+|residual| / marginal_max from the embedded bands v3, so mixed-unit residuals
+become comparable against the single top-level thresholds. Additive advisory tier metadata mirrors the pinned core4 rule without
+changing the ratio thresholds or attestation confidence formula.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ from __future__ import annotations
 from fastapi import HTTPException
 
 from app import bands
+from app.tiering import tier_residuals
 from app.models import (
     Observation,
     PointQuery,
@@ -43,12 +44,14 @@ def compute_residuals(req: ResidualsRequest) -> list[ResidualResult]:
             raise HTTPException(status_code=422, detail="observation carries no canonical variables")
         point = PointQuery(lat=obs.lat, lon=obs.lon, elevation_m=obs.elevation_m, time=when)
         (ref_result,) = compute_reference([point], sorted(observed), req.sources)
-        results.append(_one_result(obs, observed, ref_result.sources, req.mode))
+        results.append(_one_result(obs, observed, ref_result.sources, req.mode,
+                                   req.tiering_context.gross_guard_active() if req.tiering_context else False))
     return results
 
 
 def _one_result(
-    obs: Observation, observed: dict[str, float], ref_sources: list, mode: str
+    obs: Observation, observed: dict[str, float], ref_sources: list, mode: str,
+    gross_guard_active: bool = False,
 ) -> ResidualResult:
     per_source: list[SourceResiduals] = []
     worst: WorstResidual | None = None
@@ -81,6 +84,10 @@ def _one_result(
     marginal, outlier = _thresholds(mode, per_source, worst)
     return ResidualResult(
         station_id=obs.station_id,
+        tier=tier_residuals([{"source": s.source, "variable": v, "residual": r}
+                             for s in per_source for v, r in s.residuals.items()],
+                            gross_guard_active=gross_guard_active),
+        gross_guard_active=gross_guard_active,
         per_source=per_source,
         worst_ratio=worst.band_ratio if worst else None,
         worst=worst,
