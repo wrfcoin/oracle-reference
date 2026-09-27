@@ -18,7 +18,7 @@ def test_reference_basic_shape(client):
     resp = post(client)
     assert resp.status_code == 200
     body = resp.json()
-    assert body["service"]["bands_version"] == 1
+    assert body["service"]["bands_version"] == 3
     (result,) = body["results"]
     assert result["point"]["lat"] == DULUTH["lat"]
     by_source = {s["source"]: s for s in result["sources"]}

@@ -5,23 +5,23 @@ import pytest
 
 from app import bands
 
-CORE4_FIXTURE = Path(__file__).parent / "fixtures" / "reference_bands_v1.json"
+CORE4_FIXTURE = Path(__file__).parent / "fixtures" / "reference_bands_v3.json"
 
 
 def test_embedded_bands_match_core4_fixture():
     """Drift alarm: the embedded table must equal the checked-in byte copy of
-    core4 shared-protocol/fixtures/reference_bands.json (commit 225e281f4).
+    core4 shared-protocol/fixtures/reference_bands.json (commit 9ef92a235).
     If core4 recalibrates (version bump), this fails loudly."""
     upstream = json.loads(CORE4_FIXTURE.read_text())
     assert bands.as_fixture_dict() == upstream
 
 
-def test_bands_version_is_1():
-    assert bands.BANDS_VERSION == 1
+def test_bands_version_is_3():
+    assert bands.BANDS_VERSION == 3
 
 
 def test_source_variable_coverage():
-    assert set(bands.BANDS) == {"hrrr", "hrrr_fx", "gfs", "gfs_fx", "mrms", "era5"}
+    assert set(bands.BANDS) == {"hrrr", "hrrr_fx", "gfs", "gfs_fx", "mrms", "era5", "nws_station"}
     assert bands.variables_for("mrms") == frozenset({"rainfall_mm"})
     assert "rainfall_mm" not in bands.variables_for("era5")
     for source in ("hrrr", "hrrr_fx", "gfs", "gfs_fx"):

@@ -1,0 +1,208 @@
+{
+  "bands_version": 3,
+  "vectors": [
+    {
+      "name": "empty_comparison_falls_back_to_good",
+      "residuals": [],
+      "expected_tier": "good"
+    },
+    {
+      "name": "clean_reading_all_good",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.6 },
+        { "source": "hrrr", "variable": "pressure_hpa", "residual": -1.1 },
+        { "source": "hrrr", "variable": "humidity_pct", "residual": 4.0 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "marginal_temp_vs_gfs_is_degraded",
+      "residuals": [
+        { "source": "gfs", "variable": "temperature_c", "residual": 5.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "negative_residual_uses_absolute_value",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": -3.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "single_outlier_beside_good_is_degraded_3098",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.1 },
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 8.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "single_outlier_among_three_scored_is_degraded_3098",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.1 },
+        { "source": "hrrr", "variable": "humidity_pct", "residual": 2.0 },
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 8.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "two_outlier_variables_are_outlier_3098",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.1 },
+        { "source": "hrrr", "variable": "pressure_hpa", "residual": 40.0 },
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 8.0 }
+      ],
+      "expected_tier": "outlier"
+    },
+    {
+      "name": "single_scored_outlier_stays_outlier_3098",
+      "residuals": [
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 8.0 }
+      ],
+      "expected_tier": "outlier"
+    },
+    {
+      "name": "single_degraded_among_three_scored_drops_to_good_3098",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.1 },
+        { "source": "hrrr", "variable": "humidity_pct", "residual": 2.0 },
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 5.0 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "nws_station_backyard_barometer_2026_09_11_is_good_3098",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 1.8 },
+        { "source": "nws_station", "variable": "pressure_hpa", "residual": -7.8 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "nws_station_temp_good_pressure_degraded_wind_unpaired_3098",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 1.8 },
+        { "source": "nws_station", "variable": "pressure_hpa", "residual": -12.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "unknown_source_and_variable_are_skipped",
+      "residuals": [
+        { "source": "not_a_source", "variable": "temperature_c", "residual": 100.0 },
+        { "source": "hrrr", "variable": "not_a_variable", "residual": 100.0 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "mrms_precip_disagreement_is_degraded",
+      "residuals": [
+        { "source": "mrms", "variable": "rainfall_mm", "residual": 5.0 },
+        { "source": "hrrr", "variable": "temperature_c", "residual": 1.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "fraud_rehearsal_offsets_plus8c_minus40hpa",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 8.0 },
+        { "source": "hrrr", "variable": "pressure_hpa", "residual": -40.0 }
+      ],
+      "expected_tier": "outlier"
+    },
+    {
+      "name": "band_edges_inclusive_good",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 2.0 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "band_edges_inclusive_marginal",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 5.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "advisory_forecast_bands_are_wider",
+      "residuals": [
+        { "source": "hrrr_fx", "variable": "temperature_c", "residual": 2.3 }
+      ],
+      "expected_tier": "good"
+    },
+    {
+      "name": "nws_station_gross_single_temperature_2464_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": -10.4 },
+        { "source": "nws_station", "variable": "pressure_hpa", "residual": -0.2 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": 2.0 },
+        { "source": "nws_station", "variable": "wind_speed_ms", "residual": -0.2 }
+      ],
+      "expected_tier": "degraded",
+      "expected_tier_gross_guard": "outlier"
+    },
+    {
+      "name": "nws_station_near_miss_single_temperature_stays_degraded_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 8.5 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": 2.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "nws_station_gross_limit_edge_is_not_gross_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 9.0 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": 2.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "nws_station_gross_single_humidity_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 0.5 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": -45.5 }
+      ],
+      "expected_tier": "degraded",
+      "expected_tier_gross_guard": "outlier"
+    },
+    {
+      "name": "nws_station_gross_single_wind_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 0.5 },
+        { "source": "nws_station", "variable": "wind_speed_ms", "residual": 13.6 }
+      ],
+      "expected_tier": "degraded",
+      "expected_tier_gross_guard": "outlier"
+    },
+    {
+      "name": "nws_station_uncorrected_station_pressure_has_no_gross_limit_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 1.2 },
+        { "source": "nws_station", "variable": "pressure_hpa", "residual": -28.2 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": 3.8 },
+        { "source": "nws_station", "variable": "wind_speed_ms", "residual": -3.9 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "hrrr_has_no_gross_limit_configured_3131",
+      "residuals": [
+        { "source": "hrrr", "variable": "temperature_c", "residual": 0.1 },
+        { "source": "hrrr", "variable": "wind_speed_ms", "residual": 50.0 }
+      ],
+      "expected_tier": "degraded"
+    },
+    {
+      "name": "two_outliers_one_gross_stays_outlier_3131",
+      "residuals": [
+        { "source": "nws_station", "variable": "temperature_c", "residual": 12.0 },
+        { "source": "nws_station", "variable": "wind_speed_ms", "residual": 9.5 },
+        { "source": "nws_station", "variable": "humidity_pct", "residual": 1.0 }
+      ],
+      "expected_tier": "outlier"
+    }
+  ]
+}

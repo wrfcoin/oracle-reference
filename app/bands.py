@@ -1,20 +1,13 @@
-"""Residual bands, version 1 — embedded copy of the consensus-side fixture.
+"""Embedded bands v3 from deployed core4 9ef92a235.
 
-This is DATA, not verdicts: the same public band table that core4 ships at
-``shared-protocol/fixtures/reference_bands.json`` (merged in core4#2054, commit
-225e281f4). The service uses it only to express residuals as dimensionless
-band ratios (|residual| / marginal_max) so mixed-unit residuals become
-comparable; the residual→tier mapping itself is consensus-adjacent and lives
-in core4 Rust, never here.
-
-``tests/fixtures/reference_bands_v1.json`` is a byte-for-byte copy of the
-core4 fixture; ``tests/test_bands.py`` asserts this module matches it so any
-upstream recalibration (a ``version`` bump) fails loudly instead of drifting.
+The independent byte-copy fixture and golden vectors pin this advisory mirror.
+Per-variable gross_max is optional; it is not a global multiplier. Existing
+band ratios and attestation confidence semantics remain unchanged.
 """
 
 from __future__ import annotations
 
-BANDS_VERSION = 1
+BANDS_VERSION = 3
 
 # variable -> canonical unit, for documentation and validation.
 CANONICAL_VARIABLES: dict[str, str] = {
@@ -26,45 +19,35 @@ CANONICAL_VARIABLES: dict[str, str] = {
 }
 
 # source -> variable -> {good_max, marginal_max}, canonical units.
-BANDS: dict[str, dict[str, dict[str, float]]] = {
-    "hrrr": {
-        "temperature_c": {"good_max": 2.0, "marginal_max": 5.0},
-        "pressure_hpa": {"good_max": 2.5, "marginal_max": 6.0},
-        "humidity_pct": {"good_max": 10.0, "marginal_max": 25.0},
-        "wind_speed_ms": {"good_max": 3.0, "marginal_max": 7.0},
-        "rainfall_mm": {"good_max": 2.0, "marginal_max": 10.0},
-    },
-    "hrrr_fx": {
-        "temperature_c": {"good_max": 2.5, "marginal_max": 6.0},
-        "pressure_hpa": {"good_max": 3.0, "marginal_max": 7.0},
-        "humidity_pct": {"good_max": 12.0, "marginal_max": 30.0},
-        "wind_speed_ms": {"good_max": 3.5, "marginal_max": 8.0},
-        "rainfall_mm": {"good_max": 3.0, "marginal_max": 12.0},
-    },
-    "gfs": {
-        "temperature_c": {"good_max": 3.0, "marginal_max": 7.0},
-        "pressure_hpa": {"good_max": 3.5, "marginal_max": 8.0},
-        "humidity_pct": {"good_max": 15.0, "marginal_max": 35.0},
-        "wind_speed_ms": {"good_max": 4.0, "marginal_max": 9.0},
-        "rainfall_mm": {"good_max": 5.0, "marginal_max": 15.0},
-    },
-    "gfs_fx": {
-        "temperature_c": {"good_max": 3.5, "marginal_max": 8.0},
-        "pressure_hpa": {"good_max": 4.0, "marginal_max": 9.0},
-        "humidity_pct": {"good_max": 18.0, "marginal_max": 40.0},
-        "wind_speed_ms": {"good_max": 4.5, "marginal_max": 10.0},
-        "rainfall_mm": {"good_max": 6.0, "marginal_max": 18.0},
-    },
-    "mrms": {
-        "rainfall_mm": {"good_max": 1.5, "marginal_max": 8.0},
-    },
-    "era5": {
-        "temperature_c": {"good_max": 2.5, "marginal_max": 6.0},
-        "pressure_hpa": {"good_max": 2.5, "marginal_max": 6.0},
-        "humidity_pct": {"good_max": 12.0, "marginal_max": 30.0},
-        "wind_speed_ms": {"good_max": 3.5, "marginal_max": 8.0},
-    },
-}
+BANDS: dict[str, dict[str, dict[str, float]]] = {'hrrr': {'temperature_c': {'good_max': 2.0, 'marginal_max': 5.0},
+          'pressure_hpa': {'good_max': 2.5, 'marginal_max': 6.0},
+          'humidity_pct': {'good_max': 10.0, 'marginal_max': 25.0},
+          'wind_speed_ms': {'good_max': 3.0, 'marginal_max': 7.0},
+          'rainfall_mm': {'good_max': 2.0, 'marginal_max': 10.0}},
+ 'hrrr_fx': {'temperature_c': {'good_max': 2.5, 'marginal_max': 6.0},
+             'pressure_hpa': {'good_max': 3.0, 'marginal_max': 7.0},
+             'humidity_pct': {'good_max': 12.0, 'marginal_max': 30.0},
+             'wind_speed_ms': {'good_max': 3.5, 'marginal_max': 8.0},
+             'rainfall_mm': {'good_max': 3.0, 'marginal_max': 12.0}},
+ 'gfs': {'temperature_c': {'good_max': 3.0, 'marginal_max': 7.0},
+         'pressure_hpa': {'good_max': 3.5, 'marginal_max': 8.0},
+         'humidity_pct': {'good_max': 15.0, 'marginal_max': 35.0},
+         'wind_speed_ms': {'good_max': 4.0, 'marginal_max': 9.0},
+         'rainfall_mm': {'good_max': 5.0, 'marginal_max': 15.0}},
+ 'gfs_fx': {'temperature_c': {'good_max': 3.5, 'marginal_max': 8.0},
+            'pressure_hpa': {'good_max': 4.0, 'marginal_max': 9.0},
+            'humidity_pct': {'good_max': 18.0, 'marginal_max': 40.0},
+            'wind_speed_ms': {'good_max': 4.5, 'marginal_max': 10.0},
+            'rainfall_mm': {'good_max': 6.0, 'marginal_max': 18.0}},
+ 'mrms': {'rainfall_mm': {'good_max': 1.5, 'marginal_max': 8.0}},
+ 'nws_station': {'temperature_c': {'good_max': 3.0, 'marginal_max': 6.0, 'gross_max': 9.0},
+                 'pressure_hpa': {'good_max': 8.0, 'marginal_max': 15.0},
+                 'humidity_pct': {'good_max': 15.0, 'marginal_max': 30.0, 'gross_max': 45.0},
+                 'wind_speed_ms': {'good_max': 4.0, 'marginal_max': 9.0, 'gross_max': 13.5}},
+ 'era5': {'temperature_c': {'good_max': 2.5, 'marginal_max': 6.0},
+          'pressure_hpa': {'good_max': 2.5, 'marginal_max': 6.0},
+          'humidity_pct': {'good_max': 12.0, 'marginal_max': 30.0},
+          'wind_speed_ms': {'good_max': 3.5, 'marginal_max': 8.0}}}
 
 
 def band(source: str, variable: str) -> dict[str, float] | None:

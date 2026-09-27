@@ -10,10 +10,10 @@ CPU-only by construction — no model inference, no GPU anywhere in the build.
 
 ## Design invariants
 
-- **No tier verdicts here.** This service returns reference values and residuals only.
-  The consensus-adjacent residual → quality-tier mapping lives in Rust
-  (`core4/shared-protocol/src/weather/reference.rs`) so any node can independently
-  re-derive tiers from public data.
+- **Advisory tier metadata mirrors deployed consensus.** Reference values and residuals
+  remain authoritative inputs; the additive tier mirrors core4 `9ef92a235`
+  (`shared-protocol/src/weather/reference.rs`). It does not change the agent's
+  confidence calculation or reward enforcement.
 - **Two-pass scoring model** (consumed by the backend):
   advisory at reveal vs short-lead HRRR_FX/GFS_FX forecasts (no same-instant analysis
   exists yet), authoritative at T+6h vs actual HRRR/GFS analysis.
@@ -91,11 +91,11 @@ readings (variables at the top level) are also accepted.
 
 Response per observation: `{per_source: [{source, cycle, lead_hours, residuals, band_ratios,
 reference, grid, error}], worst_ratio, worst, marginal_threshold, outlier_threshold,
-bands_version}`.
+bands_version, tier, fold_rule, gross_guard_active}`.
 
 - `residuals` — **observed − reference, canonical units, sign preserved** (core4
   `ReferenceResidual` semantics; the backend shadow scorer consumes this — never normalized).
-- `band_ratios` — `|residual| / marginal_max` from the embedded bands v1 (byte-parity copy of
+- `band_ratios` — `|residual| / marginal_max` from the embedded bands v3 (byte-parity copy of
   `core4/shared-protocol/fixtures/reference_bands.json`; drift-alarm tested). Bands are public
   data, not verdicts.
 - `mode` selects the space of the top-level thresholds, matching how the consumer compares:
@@ -103,6 +103,21 @@ bands_version}`.
   decides exactly as the band-ratio comparison (the attestation loop works verbatim);
   `"ratio"` returns the stable dimensionless constants (marginal 1.0, outlier 2.0) for
   consumers reading `band_ratios`.
+
+Optional `tiering_context: {"height": 100, "gross_guard_activation_height": 100}`
+selects the guard using the chain feature schedule, inclusively at activation height.
+The caller supplies the correct chain context; this service never guesses from time
+or fetches a live node. Omitted context preserves the pre-activation second-worst
+rule; a null/omitted activation height means unscheduled. Every result records the
+chosen `gross_guard_active` state and `fold_rule`. Heights must be u64 integers.
+
+The guard uses the fixture's optional per-variable `gross_max`, strictly exceeded
+by a finite residual. Exactly one outlier among at least two scored residuals then
+collapses to outlier. Missing bands are skipped; nonfinite residuals tier outlier
+but are not gross. The old v2/multiplier issue wording predates the deployed v3
+fixture. Canonical fixtures and pre/post golden vectors are copied byte-for-byte
+from `9ef92a235`; no new threshold policy is introduced here. `nws_station` bands
+are supported even if that source's adapter is unavailable in a deployment.
 
 ### `POST /v1/location-plausibility`
 
