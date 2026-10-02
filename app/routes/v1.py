@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from app.services.forecast import ForecastRequest, ForecastResponse, compute_forecast
+
 from app.models import (
     PlausibilityRequest,
     PlausibilityResponse,
@@ -18,6 +20,11 @@ from app.services.reference import compute_reference
 from app.services.residuals import compute_residuals
 
 router = APIRouter(prefix="/v1")
+
+
+@router.post("/forecast", response_model=ForecastResponse)
+def forecast(req: ForecastRequest) -> ForecastResponse:
+    return compute_forecast(req)
 
 
 @router.post("/reference", response_model=ReferenceResponse)
