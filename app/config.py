@@ -19,6 +19,11 @@ class Settings:
     fetch_timeout_s: float = float(os.environ.get("FETCH_TIMEOUT_S", "120"))
     # Cache-janitor sweep interval (seconds); 0 disables the background loop.
     janitor_interval_s: float = float(os.environ.get("JANITOR_INTERVAL_S", "900"))
+    # Operator-staged normalized GFS/GEFS subsets, not whole upstream grids.
+    forecast_subset_dir: str | None = os.environ.get("FORECAST_SUBSET_DIR")
+    forecast_subset_url: str | None = os.environ.get("FORECAST_SUBSET_URL")
+    forecast_live_fetch: bool = os.environ.get("FORECAST_LIVE_FETCH", "0") == "1"
+    forecast_max_bytes: int = 1_048_576
 
 
 settings = Settings()

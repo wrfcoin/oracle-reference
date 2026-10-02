@@ -1,5 +1,9 @@
 # oracle-reference
 
+Forecast point extraction is available at `POST /v1/forecast` using bounded
+operator-staged GFS/GEFS subsets. See [the subset contract](docs/forecast-subsets.md)
+for request/response fields, canonical units, limits and optional retrieval.
+
 Independent weather reference-verification service for the WRFCoin oracle
 (core4 issue [#724](https://github.com/wrfcoin/core4/issues/724) — oracle trust bootstrap).
 
