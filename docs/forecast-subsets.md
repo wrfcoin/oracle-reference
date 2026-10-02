@@ -5,6 +5,9 @@ normalized GRIB subset. It is a house-baseline data API, with no scoring or
 reward policy. Model/source is explicit so additional models can extend the
 same response contract later.
 
+Use synthetic coordinates for fixtures and examples; do not send real station
+coordinates to this reference service. Points are returned at request precision.
+
 ```json
 {
   "source": "gefs_fx",

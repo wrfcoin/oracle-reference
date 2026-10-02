@@ -1,12 +1,14 @@
 import copy
 import io
 import json
+import runpy
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from app.services import forecast
+from app import config
 
 SUBSET = json.loads((Path(__file__).parent / 'fixtures/forecast_subset_v1.json').read_text())
 QUERY = {
@@ -14,6 +16,29 @@ QUERY = {
     'points': [{'lat': 0.0, 'lon': 1.0}], 'lead_hours': [6, 12],
     'variables': ['temperature_c'],
 }
+
+
+def test_fresh_configuration_defaults_live_fetch_off(client, monkeypatch):
+    monkeypatch.delenv('FORECAST_LIVE_FETCH', raising=False)
+    # Defaults are evaluated at import time; load the actual configuration
+    # afresh without altering the module already used by the application.
+    fresh = runpy.run_path(config.__file__)
+    assert fresh['Settings']().forecast_live_fetch is False
+    assert fresh['settings'].forecast_live_fetch is False
+    monkeypatch.setattr(forecast, 'settings', replace(fresh['settings'],
+        forecast_subset_dir=None, forecast_subset_url='https://example.invalid/subsets'))
+    def forbidden_transport(*args, **kwargs):
+        pytest.fail('default configuration attempted a remote fetch')
+    monkeypatch.setattr(forecast, 'urlopen', forbidden_transport)
+    assert client.post('/v1/forecast', json=QUERY).status_code == 503
+
+
+@pytest.mark.parametrize('flag,expected', [('0', False), ('1', True), ('true', False)])
+def test_fresh_configuration_requires_explicit_live_fetch_opt_in(monkeypatch, flag, expected):
+    monkeypatch.setenv('FORECAST_LIVE_FETCH', flag)
+    fresh = runpy.run_path(config.__file__)
+    assert fresh['Settings']().forecast_live_fetch is expected
+    assert fresh['settings'].forecast_live_fetch is expected
 
 
 @pytest.fixture()
