@@ -26,6 +26,11 @@ CPU-only by construction — no model inference, no GPU anywhere in the build.
 
 ## Attestation loop (`agent/attestation_loop.py`)
 
+> **RETIRED: superseded by the core4 attester; do not deploy.** Owner ruling 2026-10-03.
+> The core4 attester performs reference-checked attestation, so this Python loop is kept for
+> history only and must not be packaged or run against a live node. The reference service
+> itself (the `/v1/*` endpoints used by shadow scoring) is unaffected.
+
 One oracle operator runs this against a node and this service. Per cycle it discovers pending
 commits from the node's real `GET /transactions/oracle/pending` (core4#2464), skips anything at
 quorum or already attested by `ORACLE_ID`, reference-checks each reading via `POST /v1/residuals`
