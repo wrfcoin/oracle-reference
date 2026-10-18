@@ -1,5 +1,11 @@
 # oracle-reference
 
+## Public testnet
+
+Public testnet launch: **2026-10-22**. Testnet tokens have no monetary value.
+Visit [WRFCoin](https://wrfcoin.com), read the [documentation](https://github.com/wrfcoin/docs),
+and ask for help in [testnet-support](https://github.com/wrfcoin/testnet-support).
+
 Forecast point extraction is available at `POST /v1/forecast` using bounded
 operator-staged GFS/GEFS subsets. See [the subset contract](docs/forecast-subsets.md)
 for request/response fields, canonical units, limits and optional retrieval.
