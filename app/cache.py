@@ -62,10 +62,13 @@ class CacheJanitor:
         # Pass 1: age-based per-subdir retention.
         kept = []
         for path, size, mtime, atime, pinned, max_age in entries:
-            if max_age is not None and now - mtime > max_age.total_seconds():
-                if self._delete(path):
-                    stats.files_deleted += 1
-                    continue
+            if (
+                max_age is not None
+                and now - mtime > max_age.total_seconds()
+                and self._delete(path)
+            ):
+                stats.files_deleted += 1
+                continue
             kept.append((path, size, mtime, atime, pinned))
 
         # Pass 2: LRU down to budget (pinned files are exempt).
@@ -86,7 +89,7 @@ class CacheJanitor:
                     total / 1e9,
                     self.max_bytes / 1e9,
                 )
-        stats.bytes_after = total if total <= stats.bytes_before else stats.bytes_before
+        stats.bytes_after = min(total, stats.bytes_before)
         return stats
 
     def _scan(self) -> list[tuple[Path, int, float, float, bool, timedelta | None]]:

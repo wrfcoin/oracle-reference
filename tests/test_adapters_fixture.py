@@ -1,6 +1,6 @@
 """GridSample invariants over every recorded fixture, via FixtureSource."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +11,7 @@ from app.sources.fixture_source import FixtureSource, fixture_sources
 
 FIXTURES = Path(__file__).parent / "fixtures"
 DULUTH = (46.8369, -92.1833)
-ANY_TIME = datetime(2024, 6, 24, 12, tzinfo=timezone.utc)
+ANY_TIME = datetime(2024, 6, 24, 12, tzinfo=UTC)
 
 # Physical sanity ranges per canonical variable (canonical units).
 RANGES = {

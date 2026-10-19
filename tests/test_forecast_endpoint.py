@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from app.services import forecast
 from app import config
+from app.services import forecast
 
 SUBSET = json.loads((Path(__file__).parent / 'fixtures/forecast_subset_v1.json').read_text())
 QUERY = {

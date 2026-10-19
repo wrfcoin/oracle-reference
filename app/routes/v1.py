@@ -5,8 +5,6 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.services.forecast import ForecastRequest, ForecastResponse, compute_forecast
-
 from app.models import (
     PlausibilityRequest,
     PlausibilityResponse,
@@ -15,6 +13,7 @@ from app.models import (
     ResidualsRequest,
     ResidualsResponse,
 )
+from app.services.forecast import ForecastRequest, ForecastResponse, compute_forecast
 from app.services.plausibility import check_plausibility
 from app.services.reference import compute_reference
 from app.services.residuals import compute_residuals

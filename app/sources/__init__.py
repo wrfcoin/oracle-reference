@@ -10,7 +10,6 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 
 from app.config import settings
 from app.sources.base import ReferenceSource
@@ -20,8 +19,8 @@ from app.sources.base import ReferenceSource
 class SourceStatus:
     name: str
     available: bool
-    latest_cycle: Optional[str] = None  # ISO time of newest analysis/forecast cycle
-    last_fetch_latency_s: Optional[float] = None
+    latest_cycle: str | None = None  # ISO time of newest analysis/forecast cycle
+    last_fetch_latency_s: float | None = None
     error_count: int = 0
     detail: str = ""
 
@@ -52,7 +51,7 @@ class SourceRegistry:
     def sources(self) -> dict[str, ReferenceSource]:
         return self._sources
 
-    def source(self, name: str) -> Optional[ReferenceSource]:
+    def source(self, name: str) -> ReferenceSource | None:
         return self._sources.get(name)
 
     def record_fetch(self, name: str, cycle: datetime, latency_s: float) -> None:
@@ -80,7 +79,7 @@ class SourceRegistry:
                 continue
             try:
                 cycle = src.latest_cycle()
-            except Exception as exc:  # pragma: no cover - defensive
+            except Exception as exc:  # noqa: BLE001 - isolate and record third-party adapter failures
                 self.record_error(name, f"latest_cycle failed: {exc}")
                 continue
             if cycle is not None:
@@ -99,7 +98,7 @@ class SourceRegistry:
     def statuses(self) -> list[SourceStatus]:
         return list(self._statuses.values())
 
-    def cached_cycles(self) -> dict[str, Optional[str]]:
+    def cached_cycles(self) -> dict[str, str | None]:
         return {s.name: s.latest_cycle for s in self._statuses.values()}
 
     def uptime_s(self) -> float:

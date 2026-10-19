@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import math
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Literal
 from urllib.error import URLError
@@ -41,7 +41,7 @@ class ForecastRequest(BaseModel):
     def _cycle(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
             raise ValueError("cycle must be timezone-aware")
-        value = value.astimezone(timezone.utc)
+        value = value.astimezone(UTC)
         if value.hour % 6 or value.minute or value.second or value.microsecond:
             raise ValueError("cycle must be a six-hour UTC cycle")
         return value
@@ -108,7 +108,7 @@ def _load_subset(req: ForecastRequest) -> dict:
         data = json.loads(raw)
         if data["version"] != 1 or data["source"] != req.source:
             raise ValueError("unsupported subset")
-        cycle = datetime.fromisoformat(data["cycle"].replace("Z", "+00:00"))
+        cycle = datetime.fromisoformat(data["cycle"])
         if cycle.tzinfo is None or cycle != req.cycle:
             raise ValueError("wrong cycle")
         lats, lons = (np.asarray(data[key], dtype=float) for key in ("lats", "lons"))

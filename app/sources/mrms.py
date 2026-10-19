@@ -18,7 +18,7 @@ from __future__ import annotations
 import gzip
 import shutil
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -46,7 +46,7 @@ class MRMSSource:
     def fetch(self, time: datetime, variable: str, lat: float, lon: float) -> GridSample:
         if variable not in self.variables:
             raise SourceFetchError(f"mrms serves rainfall_mm only, not {variable}")
-        valid = time.astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        valid = time.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
         path = self._ensure_file(valid)
         lats, lons, values = self._decode_tile(path, lat, lon)
         return GridSample(
@@ -66,7 +66,7 @@ class MRMSSource:
         if not files:
             return None
         stamp = files[-1].stem.rsplit("_", 1)[-1]  # YYYYMMDD-HHMMSS
-        return datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=timezone.utc)
+        return datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=UTC)
 
     def _url(self, valid: datetime) -> str:
         day = valid.strftime("%Y%m%d")
@@ -81,9 +81,11 @@ class MRMSSource:
         url = self._url(valid)
         tmp_gz = out.with_suffix(".grib2.gz.part")
         try:
-            with urllib.request.urlopen(url, timeout=settings.fetch_timeout_s) as resp:
-                with open(tmp_gz, "wb") as fh:
-                    shutil.copyfileobj(resp, fh)
+            with (
+                urllib.request.urlopen(url, timeout=settings.fetch_timeout_s) as resp,
+                open(tmp_gz, "wb") as fh,
+            ):
+                shutil.copyfileobj(resp, fh)
             with gzip.open(tmp_gz, "rb") as gz, open(out, "wb") as fh:
                 shutil.copyfileobj(gz, fh)
         except Exception as exc:
@@ -108,7 +110,7 @@ def decode_grib_tile(
     (lazy import — exercised by the `grib`-marked test and live runs).
     """
     try:
-        import xarray as xr  # noqa: PLC0415 - heavy import stays lazy
+        import xarray as xr
     except ImportError as exc:  # pragma: no cover - slim CI never calls this
         raise SourceFetchError(f"cfgrib/xarray unavailable for GRIB decode: {exc}") from exc
     try:

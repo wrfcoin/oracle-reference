@@ -14,8 +14,9 @@ Two independent checks:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Callable, NamedTuple
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+from typing import NamedTuple
 
 import numpy as np
 from fastapi import HTTPException
@@ -62,7 +63,7 @@ def _live_box_provider(
     """Fetch a t2m+MSLP box from the analysis source (era5/gfs). Heavy imports
     stay lazy; failures surface as PlausibilityDataError."""
     try:
-        from earth2studio import data as e2d  # noqa: PLC0415 - lazy heavy import
+        from earth2studio import data as e2d
     except ImportError as exc:  # pragma: no cover - slim CI never calls this
         raise PlausibilityDataError(f"earth2studio unavailable: {exc}") from exc
     lats = np.arange(lat0 - radius_deg, lat0 + radius_deg + 1e-9, step_deg)
@@ -141,7 +142,7 @@ def _resample(req: PlausibilityRequest):
     422 when the span or usable-sample count is too small to be meaningful."""
     buckets: dict[datetime, list[dict[str, float]]] = {}
     for s in req.series:
-        t = s.time.astimezone(timezone.utc)
+        t = s.time.astimezone(UTC)
         floored = t.replace(minute=0, second=0, microsecond=0) - timedelta(
             hours=t.hour % req.options.resample_hours
         )

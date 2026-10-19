@@ -18,10 +18,10 @@ from app.sources import registry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    import asyncio  # noqa: PLC0415
+    import asyncio
 
-    from app.cache import CacheJanitor  # noqa: PLC0415
-    from app.sources.factory import build_sources  # noqa: PLC0415
+    from app.cache import CacheJanitor
+    from app.sources.factory import build_sources
 
     registry.attach(build_sources())
 

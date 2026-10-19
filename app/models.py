@@ -8,14 +8,13 @@ change attestation confidence or consensus rewards.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Literal, Optional
+from datetime import UTC, datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.tiering import FOLD_RULE, FoldRule, Tier, gross_guard_active_at
-
 from app.bands import BANDS, BANDS_VERSION, CANONICAL_VARIABLES
+from app.tiering import FOLD_RULE, FoldRule, Tier, gross_guard_active_at
 
 SERVICE_VERSION = "0.2.0"
 
@@ -23,7 +22,7 @@ SERVICE_VERSION = "0.2.0"
 def _require_utc(value: datetime) -> datetime:
     if value.tzinfo is None:
         raise ValueError("timestamps must be timezone-aware (UTC)")
-    return value.astimezone(timezone.utc)
+    return value.astimezone(UTC)
 
 
 class ServiceInfo(BaseModel):
@@ -37,7 +36,7 @@ class ServiceInfo(BaseModel):
 class PointQuery(BaseModel):
     lat: float = Field(ge=-90.0, le=90.0)
     lon: float = Field(ge=-180.0, lt=360.0)  # 0-360 accepted, normalized internally
-    elevation_m: Optional[float] = Field(default=None, ge=-430.0, le=9000.0)
+    elevation_m: float | None = Field(default=None, ge=-430.0, le=9000.0)
     time: datetime
 
     @field_validator("time")
@@ -48,12 +47,12 @@ class PointQuery(BaseModel):
 
 class ReferenceRequest(BaseModel):
     points: list[PointQuery] = Field(min_length=1, max_length=100)
-    variables: Optional[list[str]] = None  # default: all canonical
-    sources: Optional[list[str]] = None  # default: all enabled serving >=1 var
+    variables: list[str] | None = None  # default: all canonical
+    sources: list[str] | None = None  # default: all enabled serving >=1 var
 
     @field_validator("variables")
     @classmethod
-    def _known_vars(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+    def _known_vars(cls, v: list[str] | None) -> list[str] | None:
         if v is not None:
             unknown = set(v) - set(CANONICAL_VARIABLES)
             if unknown:
@@ -64,7 +63,7 @@ class ReferenceRequest(BaseModel):
 
     @field_validator("sources")
     @classmethod
-    def _known_sources(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+    def _known_sources(cls, v: list[str] | None) -> list[str] | None:
         if v is not None:
             unknown = set(v) - set(BANDS)
             if unknown:
@@ -78,19 +77,19 @@ class GridMeta(BaseModel):
     # models expose no usable orography; pressure is served as MSLP corrected
     # hypsometrically to the station elevation, so grid-vs-station elevation
     # error never enters the residual.
-    grid_elevation_m: Optional[float] = None
+    grid_elevation_m: float | None = None
     resolution_deg: float
     elevation_correction_applied: dict[str, bool] = Field(default_factory=dict)
 
 
 class SourceValues(BaseModel):
     source: str
-    cycle: Optional[datetime] = None
-    lead_hours: Optional[float] = None  # max over returned variables; 0 = analysis
+    cycle: datetime | None = None
+    lead_hours: float | None = None  # max over returned variables; 0 = analysis
     leads: dict[str, float] = Field(default_factory=dict)  # per-variable lead_hours
     values: dict[str, float] = Field(default_factory=dict)
-    grid: Optional[GridMeta] = None
-    error: Optional[str] = None
+    grid: GridMeta | None = None
+    error: str | None = None
 
 
 class PointResult(BaseModel):
@@ -107,12 +106,12 @@ class ReferenceResponse(BaseModel):
 
 
 class Observation(BaseModel):
-    station_id: Optional[str] = None
+    station_id: str | None = None
     lat: float = Field(ge=-90.0, le=90.0)
     lon: float = Field(ge=-180.0, lt=360.0)
-    elevation_m: Optional[float] = Field(default=None, ge=-430.0, le=9000.0)
-    time: Optional[datetime] = None
-    observed_at_unix: Optional[int] = None  # seconds or ms (disambiguated by magnitude)
+    elevation_m: float | None = Field(default=None, ge=-430.0, le=9000.0)
+    time: datetime | None = None
+    observed_at_unix: int | None = None  # seconds or ms (disambiguated by magnitude)
     observation: dict[str, float] = Field(default_factory=dict)
 
     # Canonical variables may also arrive flattened at the top level (core4
@@ -121,7 +120,7 @@ class Observation(BaseModel):
 
     @field_validator("time")
     @classmethod
-    def _tz(cls, v: Optional[datetime]) -> Optional[datetime]:
+    def _tz(cls, v: datetime | None) -> datetime | None:
         return _require_utc(v) if v is not None else None
 
     def resolved_time(self) -> datetime:
@@ -131,7 +130,7 @@ class Observation(BaseModel):
             ts = self.observed_at_unix
             if ts > 10**12:  # milliseconds
                 ts = ts / 1000.0
-            return datetime.fromtimestamp(ts, tz=timezone.utc)
+            return datetime.fromtimestamp(ts, tz=UTC)
         raise ValueError("observation needs `time` or `observed_at_unix`")
 
     def resolved_variables(self) -> dict[str, float]:
@@ -159,7 +158,7 @@ class TieringContext(BaseModel):
 class ResidualsRequest(BaseModel):
     tiering_context: TieringContext | None = None
     observations: list[Observation] = Field(min_length=1, max_length=100)
-    sources: Optional[list[str]] = None
+    sources: list[str] | None = None
     # Which space the top-level marginal/outlier thresholds are expressed in;
     # it must match how the consumer compares:
     # - "raw" (default): compare max(|residuals|) (canonical units) against
@@ -171,7 +170,7 @@ class ResidualsRequest(BaseModel):
 
     @field_validator("sources")
     @classmethod
-    def _sources_known(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+    def _sources_known(cls, v: list[str] | None) -> list[str] | None:
         if v is not None:
             unknown = set(v) - set(BANDS)
             if unknown:
@@ -181,13 +180,13 @@ class ResidualsRequest(BaseModel):
 
 class SourceResiduals(BaseModel):
     source: str
-    cycle: Optional[datetime] = None
-    lead_hours: Optional[float] = None
+    cycle: datetime | None = None
+    lead_hours: float | None = None
     residuals: dict[str, float] = Field(default_factory=dict)  # observed - reference, canonical units
     band_ratios: dict[str, float] = Field(default_factory=dict)  # |residual| / marginal_max (bands v3)
     reference: dict[str, float] = Field(default_factory=dict)
-    grid: Optional[GridMeta] = None
-    error: Optional[str] = None
+    grid: GridMeta | None = None
+    error: str | None = None
 
 
 class WorstResidual(BaseModel):
@@ -198,10 +197,10 @@ class WorstResidual(BaseModel):
 
 
 class ResidualResult(BaseModel):
-    station_id: Optional[str] = None
+    station_id: str | None = None
     per_source: list[SourceResiduals]
-    worst_ratio: Optional[float] = None
-    worst: Optional[WorstResidual] = None
+    worst_ratio: float | None = None
+    worst: WorstResidual | None = None
     marginal_threshold: float
     outlier_threshold: float
     bands_version: int = BANDS_VERSION
@@ -221,7 +220,7 @@ class ResidualsResponse(BaseModel):
 class ClaimedLocation(BaseModel):
     lat: float = Field(ge=-90.0, le=90.0)
     lon: float = Field(ge=-180.0, lt=360.0)
-    elevation_m: Optional[float] = Field(default=None, ge=-430.0, le=9000.0)
+    elevation_m: float | None = Field(default=None, ge=-430.0, le=9000.0)
 
 
 class SeriesSample(BaseModel):
@@ -249,29 +248,29 @@ class PlausibilityRequest(BaseModel):
 
 
 class ElevationCheck(BaseModel):
-    implied_elevation_m: Optional[float] = None
-    claimed_elevation_m: Optional[float] = None
-    delta_m: Optional[float] = None
+    implied_elevation_m: float | None = None
+    claimed_elevation_m: float | None = None
+    delta_m: float | None = None
     n_samples: int = 0
-    score: Optional[float] = None
+    score: float | None = None
     available: bool = False
 
 
 class CorrelationCheck(BaseModel):
-    corr_at_claimed: Optional[float] = None
-    best_corr: Optional[float] = None
-    best_match: Optional[dict[str, float]] = None  # {lat, lon}
-    best_match_distance_km: Optional[float] = None
-    grid_step_deg: Optional[float] = None
-    score: Optional[float] = None
+    corr_at_claimed: float | None = None
+    best_corr: float | None = None
+    best_match: dict[str, float] | None = None  # {lat, lon}
+    best_match_distance_km: float | None = None
+    grid_step_deg: float | None = None
+    score: float | None = None
     available: bool = False
 
 
 class SeriesInfo(BaseModel):
     n_samples_in: int
     n_samples_used: int
-    start: Optional[datetime] = None
-    end: Optional[datetime] = None
+    start: datetime | None = None
+    end: datetime | None = None
     variables_used: list[str] = Field(default_factory=list)
 
 
