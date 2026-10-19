@@ -6,6 +6,8 @@ The reference API and the retired Python attestation loop have different roles: 
 
 ## Public testnet
 
+Test status (2026-10-19): `pytest -q` passed at `2f49bff` on Linux/Python 3.12 (182 passed, 2 skipped, 1 deselected; recorded-fixture suite, not live-upstream validation).
+
 Public testnet launch: **2026-10-22**. Testnet tokens have no monetary value, and the network may be reset.
 
 - [WRFCoin website](https://wrfcoin.com)
