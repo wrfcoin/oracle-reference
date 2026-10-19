@@ -1,17 +1,37 @@
 # oracle-reference
 
+A CPU-only weather reference service for comparing observations with upstream weather datasets.
+
+The reference API and the retired Python attestation loop have different roles: do not deploy the retired loop. This repository is not a forecast-training or payout-validation service.
+
 ## Public testnet
 
-Public testnet launch: **2026-10-22**. Testnet tokens have no monetary value.
-Visit [WRFCoin](https://wrfcoin.com), read the [documentation](https://github.com/wrfcoin/docs),
-and ask for help in [testnet-support](https://github.com/wrfcoin/testnet-support).
+Public testnet launch: **2026-10-22**. Testnet tokens have no monetary value, and the network may be reset.
+
+- [WRFCoin website](https://wrfcoin.com)
+- [Public testnet quickstart](https://github.com/wrfcoin/docs/blob/main/testnet/quickstart.md)
+- [Help and bug reports](https://github.com/wrfcoin/testnet-support)
+- [Security reporting](SECURITY.md)
+
+## Today and planned work
+
+| Status | Scope |
+| --- | --- |
+| Available in this repository today | Reference values, observation residuals, location-plausibility checks and bounded operator-staged forecast point extraction. |
+| Planned / not available here | Any change to reward enforcement or oracle deployment requires separate review; local API tests do not establish live integration or payout readiness. |
+
+## Build and use
+
+See [CONTRIBUTING.md](CONTRIBUTING.md#build-and-test) for prerequisites and build/test commands. CI results apply only to the named commit and executed checks; they do not prove deployment.
+
+Licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
 
 Forecast point extraction is available at `POST /v1/forecast` using bounded
 operator-staged GFS/GEFS subsets. See [the subset contract](docs/forecast-subsets.md)
 for request/response fields, canonical units, limits and optional retrieval.
 
 Independent weather reference-verification service for the WRFCoin oracle
-(core4 issue [#724](https://github.com/wrfcoin/core4/issues/724) — oracle trust bootstrap).
+(core4 issue #724 (internal historical reference) — oracle trust bootstrap).
 
 Wraps [NVIDIA earth2studio](https://github.com/NVIDIA/earth2studio) **data sources only**
 (GFS/GFS_FX, HRRR/HRRR_FX, MRMS, ERA5, ISD/GHCND) to serve gridded reference values,
