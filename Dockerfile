@@ -1,5 +1,5 @@
 # oracle-reference — CPU-only reference-verification service.
-# Local builds only (N5 Pro testnet stack); NEVER pushed to a registry.
+# Local builds only (operator testnet stack); NEVER pushed to a registry.
 # Expected image size ~2-2.5 GB (CPU torch + xarray/zarr/cfgrib stack).
 FROM python:3.11-slim
 
