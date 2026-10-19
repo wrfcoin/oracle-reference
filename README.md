@@ -162,3 +162,7 @@ Runs on port 8010 inside the `wrfcoin-testnet` bridge network (no host binding).
 Deployment: local builds only via the infra testnet compose stack — never pushed to a registry.
 Cache janitor: background sweep every `JANITOR_INTERVAL_S` (default 900 s) enforces per-source
 retention (HRRR 7 d, GFS 14 d, MRMS 48 h, ERA5 pinned) then LRU-evicts to `CACHE_MAX_GB`.
+
+## License
+
+Licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
