@@ -1,5 +1,11 @@
 # oracle-reference
 
+## Public testnet
+
+Public testnet launch: **2026-10-22**. Testnet tokens have no monetary value.
+Visit [WRFCoin](https://wrfcoin.com), read the [documentation](https://github.com/wrfcoin/docs),
+and ask for help in [testnet-support](https://github.com/wrfcoin/testnet-support).
+
 Forecast point extraction is available at `POST /v1/forecast` using bounded
 operator-staged GFS/GEFS subsets. See [the subset contract](docs/forecast-subsets.md)
 for request/response fields, canonical units, limits and optional retrieval.
@@ -156,3 +162,7 @@ Runs on port 8010 inside the `wrfcoin-testnet` bridge network (no host binding).
 Deployment: local builds only via the infra testnet compose stack — never pushed to a registry.
 Cache janitor: background sweep every `JANITOR_INTERVAL_S` (default 900 s) enforces per-source
 retention (HRRR 7 d, GFS 14 d, MRMS 48 h, ERA5 pinned) then LRU-evicts to `CACHE_MAX_GB`.
+
+## License
+
+Licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
