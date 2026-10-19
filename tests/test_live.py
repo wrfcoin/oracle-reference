@@ -12,7 +12,7 @@ one of hrrr/gfs.
 
 import json
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -38,14 +38,14 @@ def test_reference_t2m_matches_kdlh_metar():
     metars = fetch_kdlh_metars()
     assert metars, "no KDLH METARs returned"
     # Most recent report that is old enough for analyses to exist.
-    cutoff = datetime.now(tz=timezone.utc) - MIN_OB_AGE
+    cutoff = datetime.now(tz=UTC) - MIN_OB_AGE
     metar = next(
         m
         for m in metars
         if m.get("temp") is not None
-        and datetime.fromtimestamp(m["obsTime"], tz=timezone.utc) <= cutoff
+        and datetime.fromtimestamp(m["obsTime"], tz=UTC) <= cutoff
     )
-    obs_time = datetime.fromtimestamp(metar["obsTime"], tz=timezone.utc)
+    obs_time = datetime.fromtimestamp(metar["obsTime"], tz=UTC)
     hour = obs_time.replace(minute=0, second=0, microsecond=0)
     if obs_time.minute > 30:
         hour += timedelta(hours=1)

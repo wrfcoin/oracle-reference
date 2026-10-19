@@ -13,7 +13,6 @@ from __future__ import annotations
 from fastapi import HTTPException
 
 from app import bands
-from app.tiering import tier_residuals
 from app.models import (
     Observation,
     PointQuery,
@@ -23,6 +22,7 @@ from app.models import (
     WorstResidual,
 )
 from app.services.reference import compute_reference
+from app.tiering import tier_residuals
 
 # Ratio-space thresholds (mode="ratio"): a band ratio of 1.0 sits exactly on
 # the marginal_max edge for every band in the table; 2.0 is the confidence-

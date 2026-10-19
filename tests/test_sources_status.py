@@ -1,6 +1,6 @@
 """SourceRegistry behavior: attach, fetch/error recording, cached cycles."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app.sources import SourceRegistry
@@ -33,7 +33,7 @@ def test_attach_marks_available_and_reports_real_cycles():
 def test_record_fetch_updates_status():
     reg = make_registry()
     reg.attach(fixture_sources(FIXTURES))
-    cycle = datetime(2024, 6, 24, 12, tzinfo=timezone.utc)
+    cycle = datetime(2024, 6, 24, 12, tzinfo=UTC)
     reg.record_fetch("hrrr", cycle, 1.234)
     status = {s.name: s for s in reg.statuses()}["hrrr"]
     assert status.latest_cycle == cycle.isoformat()
@@ -53,6 +53,6 @@ def test_record_error_increments_and_truncates():
 
 def test_record_on_unknown_source_is_noop():
     reg = make_registry()
-    reg.record_fetch("nope", datetime.now(timezone.utc), 0.1)
+    reg.record_fetch("nope", datetime.now(UTC), 0.1)
     reg.record_error("nope", "x")
     assert "nope" not in {s.name for s in reg.statuses()}

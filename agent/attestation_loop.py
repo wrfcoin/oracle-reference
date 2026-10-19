@@ -115,7 +115,7 @@ class Config:
     expected_network_id: str = ""
 
     @classmethod
-    def from_env(cls, args: argparse.Namespace) -> "Config":
+    def from_env(cls, args: argparse.Namespace) -> Config:
         unsafe = bool(getattr(args, "unsafe_approve_all", False))
         if unsafe and os.environ.get("ATTESTATION_LOOP_ALLOW_UNSAFE") != "1":
             raise SystemExit(
@@ -161,7 +161,7 @@ def load_station_locations(path: str) -> dict[str, dict[str, float]]:
 
 def _get_json(url: str, token: str) -> dict:
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310 (trusted node)
+    with urllib.request.urlopen(req, timeout=10) as resp:
         return json.loads(resp.read().decode())
 
 
@@ -172,7 +172,7 @@ def _post_json(url: str, token: str, body: dict) -> tuple[int, str]:
         headers["Authorization"] = f"Bearer {token}"
     req = urllib.request.Request(url, data=data, method="POST", headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.status, resp.read().decode()
     except urllib.error.HTTPError as e:  # type: ignore[attr-defined]
         return e.code, e.read().decode()
@@ -476,7 +476,7 @@ def main() -> None:
     while True:
         try:
             run_once(cfg, manual)
-        except Exception as e:  # keep the loop alive across transient errors
+        except Exception as e:  # noqa: BLE001 - outer loop reports failures and retries next cycle
             print(f"[error] cycle failed: {e}")
         time.sleep(cfg.interval_s)
 

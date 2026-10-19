@@ -3,7 +3,6 @@ that reproduces PR #6's agent/attestation_loop.py::reference_check parsing."""
 
 import pytest
 
-
 TIME = "2024-06-24T12:00:00Z"
 DULUTH = {"lat": 46.8369, "lon": -92.1833, "elevation_m": 186.0, "time": TIME}
 
@@ -97,7 +96,7 @@ def test_flattened_core4_reading_shape_accepted(client):
 def test_observed_at_unix_accepted(client):
     import datetime as dt
 
-    ts = int(dt.datetime(2024, 6, 24, 12, tzinfo=dt.timezone.utc).timestamp())
+    ts = int(dt.datetime(2024, 6, 24, 12, tzinfo=dt.UTC).timestamp())
     for stamp in (ts, ts * 1000):  # seconds and milliseconds
         ob = {"lat": DULUTH["lat"], "lon": DULUTH["lon"], "elevation_m": 186.0,
               "observed_at_unix": stamp, "observation": {"temperature_c": 14.0}}

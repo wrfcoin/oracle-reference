@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import os
 import threading
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 
@@ -47,8 +47,8 @@ _CANONICAL = frozenset(
 
 def _utc_hour(t: datetime) -> datetime:
     if t.tzinfo is None:
-        t = t.replace(tzinfo=timezone.utc)
-    return t.astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        t = t.replace(tzinfo=UTC)
+    return t.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
 
 
 class Earth2Source:
@@ -79,7 +79,7 @@ class Earth2Source:
             if kind in self._clients:
                 return self._clients[kind]
             os.environ.setdefault("EARTH2STUDIO_CACHE", settings.cache_dir)
-            from earth2studio import data as e2d  # noqa: PLC0415 - lazy heavy import
+            from earth2studio import data as e2d
 
             if kind == "analysis":
                 cls = {"hrrr": e2d.HRRR, "gfs": e2d.GFS, "arco": e2d.ARCO}[self._base]

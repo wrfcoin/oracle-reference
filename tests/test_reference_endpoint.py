@@ -1,5 +1,7 @@
 """POST /v1/reference against recorded fixtures."""
 
+from datetime import UTC
+
 import numpy as np
 import pytest
 
@@ -60,12 +62,13 @@ def test_pressure_corrected_to_station_elevation(client):
     assert hrrr["grid"]["elevation_correction_applied"]["pressure_hpa"] is True
     assert hrrr["grid"]["grid_elevation_m"] == 0.0  # MSLP datum
 
-    from app.sources.fixture_source import FixtureSource
+    from datetime import datetime
     from pathlib import Path
-    from datetime import datetime, timezone
+
+    from app.sources.fixture_source import FixtureSource
 
     src = FixtureSource("hrrr", Path(__file__).parent / "fixtures")
-    t = datetime(2024, 6, 24, 12, tzinfo=timezone.utc)
+    t = datetime(2024, 6, 24, 12, tzinfo=UTC)
     p_sample = src.fetch(t, "pressure_hpa", DULUTH["lat"], DULUTH["lon"])
     t_sample = src.fetch(t, "temperature_c", DULUTH["lat"], DULUTH["lon"])
     mslp = bilinear(p_sample.lats, p_sample.lons, p_sample.values, DULUTH["lat"], DULUTH["lon"]).value
@@ -91,12 +94,13 @@ def test_wind_interpolates_components(client):
     body = post(client, variables=["wind_speed_ms"], sources=["gfs"]).json()
     gfs = body["results"][0]["sources"][0]
 
-    from app.sources.fixture_source import FixtureSource
+    from datetime import datetime
     from pathlib import Path
-    from datetime import datetime, timezone
+
+    from app.sources.fixture_source import FixtureSource
 
     src = FixtureSource("gfs", Path(__file__).parent / "fixtures")
-    s = src.fetch(datetime(2024, 6, 24, 12, tzinfo=timezone.utc), "wind_speed_ms",
+    s = src.fetch(datetime(2024, 6, 24, 12, tzinfo=UTC), "wind_speed_ms",
                   DULUTH["lat"], DULUTH["lon"])
     u = bilinear(s.lats, s.lons, s.components["u"], DULUTH["lat"], DULUTH["lon"]).value
     v = bilinear(s.lats, s.lons, s.components["v"], DULUTH["lat"], DULUTH["lon"]).value
