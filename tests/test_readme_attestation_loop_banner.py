@@ -18,3 +18,10 @@ def test_attestation_loop_section_says_superseded_do_not_deploy():
     nxt = text.find("\n## ", start + len(HEADING))
     section = text[start : nxt if nxt != -1 else len(text)]
     assert BANNER in section.lower(), section[:300]
+
+
+def test_readme_carries_no_run_instructions_for_the_retired_loop():
+    text = README.read_text(encoding="utf-8")
+    assert "python -m agent.attestation_loop" not in text
+    historical = README.parent / "docs" / "historical" / "attestation-loop.md"
+    assert "do not run" in historical.read_text(encoding="utf-8").lower()
